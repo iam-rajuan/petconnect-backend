@@ -1,13 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import jwt, { JwtPayload } from "jsonwebtoken";
-
-export interface AuthUser extends JwtPayload {
-  id: string;
-  role: string;
-}
+import { verifyToken, AuthTokenPayload } from "../utils/jwt";
 
 export interface AuthRequest extends Request {
-  user?: AuthUser;
+  user?: AuthTokenPayload;
 }
 
 const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -23,14 +18,13 @@ const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => 
   const token = authHeader.split(" ")[1];
 
   try {
-    if (!process.env.JWT_SECRET) {
-      return res.status(500).json({
+    const decoded = verifyToken(token);
+    if (decoded.type !== "access") {
+      return res.status(401).json({
         success: false,
-        message: "JWT secret not configured",
+        message: "Invalid token type",
       });
     }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET) as AuthUser;
     req.user = decoded;
     next();
   } catch (err) {

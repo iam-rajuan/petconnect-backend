@@ -6,9 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon --watch src --ext ts --exec ts-node src/server.ts",
-    "prestart": "npm run build",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "ts-node src/server.ts",
+    "start:prod": "npm run build && node dist/server.js"
   },
   "keywords": [],
   "author": "",
