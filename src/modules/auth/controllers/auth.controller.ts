@@ -151,3 +151,33 @@ export const resetPassword = async (
     res.status(400).json({ success: false, message });
   }
 };
+
+
+
+
+export const sendPhoneOtpController = async (req: Request, res: Response) => {
+  try {
+    const sessionInfo = await authService.sendPhoneOtp(req.body);
+    res.json({ success: true, sessionInfo });
+  } catch (err) {
+    res.status(400).json({ success: false, message: (err as Error).message });
+  }
+};
+
+export const verifyPhoneOtpController = async (req: Request, res: Response) => {
+  try {
+    const { sessionInfo, phone, otp } = req.body;
+    const result = await authService.verifyPhoneOtp({ sessionInfo, phone, otp });
+
+    res.json({
+      success: true,
+      message: "Phone verified",
+      data: {
+        user: result.user,
+        tokens: result.tokens,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({ success: false, message: (err as Error).message });
+  }
+};

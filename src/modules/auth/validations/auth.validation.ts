@@ -2,9 +2,7 @@ import { z } from "zod";
 
 const contactSchema = z.object({
   email: z
-    .string()
-    .trim()
-    .email("Invalid email format")
+    .email("Invalid email format").trim()
     .optional()
     .or(z.literal("")),
   phone: z
@@ -62,6 +60,25 @@ export const resetPasswordSchema = z.object({
   otp: z.string().trim().length(6, "OTP must be 6 digits"),
   password: z.string().trim().min(6, "Password must be at least 6 characters"),
 });
+
+
+
+
+
+export const sendPhoneOtpSchema = z.object({
+  phone: z.string().min(10, "Phone is required"),
+});
+
+export const verifyPhoneOtpSchema = z.object({
+  phone: z.string(),
+  otp: z.string().length(6, "OTP must be 6 digits"),
+});
+
+export type SendPhoneOtpInput = z.infer<typeof sendPhoneOtpSchema>;
+export type VerifyPhoneOtpInput = z.infer<typeof verifyPhoneOtpSchema>;
+
+
+
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;

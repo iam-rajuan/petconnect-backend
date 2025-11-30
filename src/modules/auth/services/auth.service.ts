@@ -12,6 +12,53 @@ import {
 import { signAccessToken, signRefreshToken, verifyToken } from "../../../utils/jwt";
 import { sendMail } from "../../../utils/mail";
 
+import { sendFirebaseOtp, verifyFirebaseOtp } from "../../../utils/firebase-sms";
+
+
+
+
+
+export const sendPhoneOtp = async ({ phone }: { phone: string }) => {
+  const sessionInfo = await sendFirebaseOtp(phone);
+  return sessionInfo;
+};
+
+export const verifyPhoneOtp = async ({
+  phone,
+  otp,
+  sessionInfo,
+}: {
+  phone: string;
+  otp: string;
+  sessionInfo: string;
+}) => {
+  const result = await verifyFirebaseOtp(sessionInfo, otp);
+
+  let user = await User.findOne({ phone });
+
+  if (!user) {
+    user = await User.create({
+      phone,
+      isPhoneVerified: true,
+      firebaseUid: result.localId,
+      name: "User-" + phone,
+      password: "", // not needed
+    });
+  }
+
+  const payload = { id: user._id.toString(), role: user.role };
+
+  return {
+    user,
+    tokens: {
+      accessToken: signAccessToken(payload),
+      refreshToken: signRefreshToken(payload),
+    },
+  };
+};
+
+
+
 export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
