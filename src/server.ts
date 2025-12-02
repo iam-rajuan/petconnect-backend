@@ -1,19 +1,19 @@
 import http from "http";
 import app from "./app";
 import connectDB from "./config/db";
+import { env } from "./env";
 
-const PORT = Number(process.env.PORT) || 5000;
-const MONGO_URI = process.env.MONGO_URI;
+
 
 async function startServer() {
   try {
-    await connectDB(MONGO_URI);
+    await connectDB(env.MONGO_URI);
     console.log("MongoDB connected");
 
     const server = http.createServer(app);
 
-    server.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+    server.listen(env.PORT, () => {
+      console.log(`Server running on port ${env.PORT}`);
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

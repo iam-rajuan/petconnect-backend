@@ -10,6 +10,7 @@ export const toPetResponse = (pet: IPet) => ({
   gender: pet.gender,
   bio: pet.bio,
   avatarUrl: pet.avatarUrl,
+  photos: pet.photos,
   medicalRecords: pet.medicalRecords,
   createdAt: pet.createdAt,
   updatedAt: pet.updatedAt,

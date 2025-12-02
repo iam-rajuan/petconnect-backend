@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const registerSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters"),
-  email: z.string().trim().email("Invalid email format"),
+  email: z.email("Invalid email format").trim(),
   password: z.string().trim().min(6, "Password must be at least 6 characters"),
   phone: z
     .string()
@@ -13,7 +13,7 @@ export const registerSchema = z.object({
 });
 
 export const loginSchema = z.object({
-  email: z.string().trim().email("Invalid email format"),
+  email: z.email("Invalid email format").trim(),
   password: z.string().trim().min(6, "Password must be at least 6 characters"),
 });
 
@@ -22,20 +22,20 @@ export const refreshTokenSchema = z.object({
 });
 
 export const verifyEmailSchema = z.object({
-  email: z.string().trim().email("Invalid email format"),
+  email: z.email("Invalid email format").trim(),
   otp: z.string().trim().length(6, "OTP must be 6 digits"),
 });
 
 export const resendEmailOtpSchema = z.object({
-  email: z.string().trim().email("Invalid email format"),
+  email: z.email("Invalid email format").trim(),
 });
 
 export const forgotPasswordSchema = z.object({
-  email: z.string().trim().email("Invalid email format"),
+  email: z.email("Invalid email format").trim(),
 });
 
 export const resetPasswordSchema = z.object({
-  email: z.string().trim().email("Invalid email format"),
+  email: z.email("Invalid email format").trim(),
   otp: z.string().trim().length(6, "OTP must be 6 digits"),
   password: z.string().trim().min(6, "Password must be at least 6 characters"),
 });

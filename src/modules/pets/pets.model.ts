@@ -15,6 +15,7 @@ export interface IPet extends Document {
   gender?: "male" | "female";
   bio?: string;
   avatarUrl?: string | null;
+  photos: string[];
   medicalRecords: IMedicalRecord[];
   createdAt: Date;
   updatedAt: Date;
@@ -39,6 +40,7 @@ const petSchema = new mongoose.Schema<IPet>(
     gender: { type: String, enum: ["male", "female"], default: undefined },
     bio: { type: String },
     avatarUrl: { type: String, default: null },
+    photos: { type: [String], default: [] },
     medicalRecords: { type: [medicalRecordSchema], default: [] },
   },
   { timestamps: true }

@@ -1,7 +1,7 @@
-import Pet, { IPet } from "./pets.model";
+import Pet, { IMedicalRecord, IPet } from "./pets.model";
 import { CreatePetInput, UpdatePetInput } from "./pets.validation";
 
-const ensureOwnedPet = async (ownerId: string, petId: string): Promise<IPet> => {
+export const ensureOwnedPet = async (ownerId: string, petId: string): Promise<IPet> => {
   const pet = await Pet.findOne({ _id: petId, owner: ownerId });
   if (!pet) {
     throw new Error("Pet not found");
@@ -51,4 +51,58 @@ export const updatePet = async (
 export const deletePet = async (ownerId: string, petId: string): Promise<void> => {
   const pet = await ensureOwnedPet(ownerId, petId);
   await Pet.deleteOne({ _id: pet._id });
+};
+
+export const addPetPhoto = async (
+  ownerId: string,
+  petId: string,
+  photoUrl: string
+): Promise<IPet> => {
+  const pet = await ensureOwnedPet(ownerId, petId);
+  pet.photos.push(photoUrl);
+  await pet.save();
+  return pet;
+};
+
+export const removePetPhoto = async (
+  ownerId: string,
+  petId: string,
+  keyOrUrl: string
+): Promise<IPet> => {
+  const pet = await ensureOwnedPet(ownerId, petId);
+  const index = pet.photos.findIndex((photo) => photo === keyOrUrl || photo.endsWith(keyOrUrl));
+  if (index === -1) {
+    throw new Error("Photo not found");
+  }
+  pet.photos.splice(index, 1);
+  await pet.save();
+  return pet;
+};
+
+export const addPetDocument = async (
+  ownerId: string,
+  petId: string,
+  doc: IMedicalRecord
+): Promise<IPet> => {
+  const pet = await ensureOwnedPet(ownerId, petId);
+  pet.medicalRecords.push(doc);
+  await pet.save();
+  return pet;
+};
+
+export const removePetDocument = async (
+  ownerId: string,
+  petId: string,
+  keyOrUrl: string
+): Promise<IPet> => {
+  const pet = await ensureOwnedPet(ownerId, petId);
+  const index = pet.medicalRecords.findIndex(
+    (record) => record.documentUrl === keyOrUrl || record.documentUrl.endsWith(keyOrUrl)
+  );
+  if (index === -1) {
+    throw new Error("Document not found");
+  }
+  pet.medicalRecords.splice(index, 1);
+  await pet.save();
+  return pet;
 };

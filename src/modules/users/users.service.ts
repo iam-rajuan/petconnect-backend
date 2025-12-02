@@ -95,3 +95,13 @@ export const updateOwnAvatar = async (
   await user.save();
   return user;
 };
+
+export const updateUserAvatar = async (userId: string, avatarUrl: string): Promise<IUser> => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+  user.avatarUrl = avatarUrl.trim();
+  await user.save();
+  return user;
+};
