@@ -3,6 +3,7 @@ import authModule from "./auth";
 import adminModule from "./admin";
 import petsModule from "./pets";
 import uploadsModule from "./uploads";
+import adoptionModule from "./adoption";
 
 export interface ModuleDefinition {
   name: string;
