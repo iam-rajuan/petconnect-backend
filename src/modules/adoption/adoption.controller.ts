@@ -11,6 +11,7 @@ const requireUser = (req: AuthRequest, res: Response): { id: string; role: strin
   return { id: req.user.id, role: req.user.role };
 };
 
+//adoption listing
 export const createAdoptionListing = async (req: AuthRequest, res: Response) => {
   try {
     const user = requireUser(req, res);
