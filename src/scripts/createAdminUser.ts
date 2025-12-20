@@ -33,6 +33,7 @@ const run = async () => {
     isVerified: true,
     status: "active",
     isSuspended: false,
+    profileCompleted: true,
   });
 
   console.log("Admin user created:");

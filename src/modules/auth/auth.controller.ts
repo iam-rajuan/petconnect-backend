@@ -8,6 +8,7 @@ import {
   ResendEmailOtpInput,
   ForgotPasswordInput,
   ResetPasswordInput,
+  CompleteProfileInput,
 } from "./auth.validation";
 import { AuthRequest } from "../../middlewares/auth.middleware";
 import { IUser } from "../users/user.model";
@@ -18,6 +19,12 @@ const buildUserResponse = (user: IUser) => ({
   email: user.email,
   phone: user.phone,
   role: user.role,
+  username: user.username,
+  avatarUrl: user.avatarUrl,
+  location: user.location,
+  favorites: user.favorites || [],
+  isVerified: user.isVerified,
+  profileCompleted: user.profileCompleted ?? true,
 });
 
 export const register = async (
@@ -25,12 +32,14 @@ export const register = async (
   res: Response
 ) => {
   try {
-    const user = await authService.register(req.body);
+    const result = await authService.register(req.body);
     res.status(201).json({
       success: true,
       message: "OTP sent to email. Please verify email to complete registration.",
       data: {
-        user: buildUserResponse(user),
+        email: result.email,
+        phone: result.phone,
+        name: result.name,
       },
     });
   } catch (err) {
@@ -41,17 +50,43 @@ export const register = async (
 
 export const login = async (req: Request<unknown, unknown, LoginInput>, res: Response) => {
   try {
-    const { user, tokens } = await authService.login(req.body);
+    const { user, tokens, needsProfileSetup, setupToken } = await authService.login(req.body);
     res.json({
       success: true,
-      message: "Login successful",
+      message: tokens ? "Login successful" : "Profile setup required",
       data: {
         user: buildUserResponse(user),
         tokens,
+        needsProfileSetup: Boolean(needsProfileSetup),
+        setupToken,
       },
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Login failed";
+    res.status(400).json({ success: false, message });
+  }
+};
+
+export const completeProfile = async (
+  req: AuthRequest & Request<unknown, unknown, CompleteProfileInput>,
+  res: Response
+) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const result = await authService.completeProfile(req.user.id, req.body);
+    res.json({
+      success: true,
+      message: "Profile completed",
+      data: {
+        user: buildUserResponse(result.user),
+        tokens: result.tokens,
+      },
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Profile setup failed";
     res.status(400).json({ success: false, message });
   }
 };
@@ -110,13 +145,16 @@ export const verifyEmail = async (
   res: Response
 ) => {
   try {
-    const { user, tokens } = await authService.verifyEmailWithOtp(req.body);
+    const { user, needsProfileSetup, setupToken } = await authService.verifyEmailWithOtp(
+      req.body
+    );
     res.json({
       success: true,
       message: "Email verified successfully",
       data: {
         user: buildUserResponse(user),
-        tokens,
+        needsProfileSetup: Boolean(needsProfileSetup),
+        setupToken,
       },
     });
   } catch (err) {
@@ -188,14 +226,19 @@ export const sendPhoneOtpController = async (req: Request, res: Response) => {
 export const verifyPhoneOtpController = async (req: Request, res: Response) => {
   try {
     const { phone, otp } = req.body;
-    const result = await authService.verifyPhoneOtp({ phone, otp });
+    const { user, tokens, needsProfileSetup, setupToken } = await authService.verifyPhoneOtp({
+      phone,
+      otp,
+    });
 
     res.json({
       success: true,
-      message: "Phone verified",
+      message: tokens ? "Phone verified" : "Profile setup required",
       data: {
-        user: result.user,
-        tokens: result.tokens,
+        user: buildUserResponse(user),
+        tokens,
+        needsProfileSetup: Boolean(needsProfileSetup),
+        setupToken,
       },
     });
   } catch (err) {

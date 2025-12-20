@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import User, { IUser } from "../users/user.model";
 import RefreshToken, { IRefreshToken } from "./refreshToken.model";
+import PendingRegistration, { IPendingRegistration } from "./pendingRegistration.model";
 import {
   LoginInput,
   RegisterInput,
@@ -9,8 +10,9 @@ import {
   ResendEmailOtpInput,
   ForgotPasswordInput,
   ResetPasswordInput,
+  CompleteProfileInput,
 } from "./auth.validation";
-import { signAccessToken, signRefreshToken, verifyToken } from "../../utils/jwt";
+import { signAccessToken, signRefreshToken, signSetupToken, verifyToken } from "../../utils/jwt";
 import { sendMail } from "../../utils/mail";
 type Carrier = "verizon" | "att" | "tmobile" | "sprint";
 
@@ -34,6 +36,7 @@ export const sendPhoneOtp = async ({ phone, carrier }: { phone: string; carrier:
       phone: sanitizedPhone,
       name: "User-" + sanitizedPhone,
       password: "",
+      profileCompleted: false,
     });
   }
 
@@ -49,7 +52,13 @@ export const sendPhoneOtp = async ({ phone, carrier }: { phone: string; carrier:
   });
 };
 
-export const verifyPhoneOtp = async ({ phone, otp }: { phone: string; otp: string }) => {
+export const verifyPhoneOtp = async ({
+  phone,
+  otp,
+}: {
+  phone: string;
+  otp: string;
+}): Promise<AuthFlowResult> => {
   const sanitizedPhone = phone.trim();
   const user = await User.findOne({ phone: sanitizedPhone });
 
@@ -68,6 +77,15 @@ export const verifyPhoneOtp = async ({ phone, otp }: { phone: string; otp: strin
   user.phoneVerificationExpires = null;
   await user.save();
 
+  if (!user.isVerified) {
+    throw new Error("Email not verified");
+  }
+
+  const profileCompleted = isProfileCompleted(user);
+  if (!profileCompleted) {
+    return { user, needsProfileSetup: true, setupToken: buildSetupToken(user) };
+  }
+
   const tokens = await buildTokens(user);
 
   return { user, tokens };
@@ -80,9 +98,17 @@ export interface AuthTokens {
   refreshToken: string;
 }
 
-export interface AuthResult {
+export interface AuthFlowResult {
   user: IUser;
-  tokens: AuthTokens;
+  tokens?: AuthTokens;
+  needsProfileSetup?: boolean;
+  setupToken?: string;
+}
+
+export interface RegisterResult {
+  email: string;
+  phone?: string;
+  name: string;
 }
 
 const normalizeContact = (value?: string): string | undefined => value?.trim() || undefined;
@@ -103,6 +129,19 @@ const addMinutes = (minutes: number): Date => {
   return date;
 };
 
+const isProfileCompleted = (user: IUser): boolean => user.profileCompleted ?? true;
+
+const buildSetupToken = (user: IUser): string =>
+  signSetupToken({ id: user._id.toString(), role: user.role });
+
+const sendOtpEmail = async (email: string, otp: string): Promise<void> => {
+  await sendMail({
+    to: email,
+    subject: "Verify your email",
+    text: `Your verification OTP is ${otp}. It expires in 30 minutes.`,
+  });
+};
+
 const saveRefreshToken = async (userId: string, token: string, expiresAt: Date) => {
   const hashedToken = await bcrypt.hash(token, 10);
   await RefreshToken.create({
@@ -114,6 +153,10 @@ const saveRefreshToken = async (userId: string, token: string, expiresAt: Date) 
 };
 
 const buildTokens = async (user: IUser): Promise<AuthTokens> => {
+  if (!user.isVerified || !isProfileCompleted(user)) {
+    throw new Error("Cannot issue tokens until onboarding is complete");
+  }
+
   const payload = { id: user._id.toString(), role: user.role };
   const accessToken = signAccessToken(payload);
   const refreshToken = signRefreshToken(payload);
@@ -131,7 +174,7 @@ export const register = async ({
   email,
   phone,
   password,
-}: RegisterInput): Promise<IUser> => {
+}: RegisterInput): Promise<RegisterResult> => {
   const sanitizedName = name?.trim();
   if (!sanitizedName) {
     throw new Error("Name is required");
@@ -144,34 +187,49 @@ export const register = async ({
     throw new Error("Email is required");
   }
 
-  const contactFilters: Record<string, string>[] = [];
-  if (normalizedEmail) contactFilters.push({ email: normalizedEmail });
+  const contactFilters: Record<string, string>[] = [{ email: normalizedEmail }];
   if (sanitizedPhone) contactFilters.push({ phone: sanitizedPhone });
 
-  const existingUser = await User.findOne({
-    $or: contactFilters,
-  });
-
-  if (existingUser) {
-    throw new Error("User already exists with this email or phone");
+  const existingUser = await User.findOne({ $or: contactFilters });
+  if (existingUser?.isVerified) {
+    throw new Error("Email already registered. Please login.");
   }
 
   const hashedPassword = await hashPassword(password);
 
-  const user = await User.create({
-    name: sanitizedName,
-    email: normalizedEmail,
-    phone: sanitizedPhone,
-    password: hashedPassword,
-    isVerified: false,
+  // reuse or create pending registration
+  const otp = generateOtp();
+  const otpExpiresAt = addMinutes(30);
+
+  const existingPending = await PendingRegistration.findOne({
+    $or: [{ email: normalizedEmail }, sanitizedPhone ? { phone: sanitizedPhone } : {}],
   });
 
-  await sendEmailVerificationOtp(user);
+  if (existingPending) {
+    existingPending.name = sanitizedName;
+    existingPending.email = normalizedEmail;
+    existingPending.phone = sanitizedPhone || undefined;
+    existingPending.password = hashedPassword;
+    existingPending.otp = otp;
+    existingPending.otpExpiresAt = otpExpiresAt;
+    await existingPending.save();
+  } else {
+    await PendingRegistration.create({
+      name: sanitizedName,
+      email: normalizedEmail,
+      phone: sanitizedPhone,
+      password: hashedPassword,
+      otp,
+      otpExpiresAt,
+    });
+  }
 
-  return user;
+  await sendOtpEmail(normalizedEmail, otp);
+
+  return { email: normalizedEmail, phone: sanitizedPhone, name: sanitizedName };
 };
 
-export const login = async ({ email, password }: LoginInput): Promise<AuthResult> => {
+export const login = async ({ email, password }: LoginInput): Promise<AuthFlowResult> => {
   const normalizedEmail = email?.trim().toLowerCase();
   const sanitizedPassword = password?.trim();
 
@@ -197,6 +255,59 @@ export const login = async ({ email, password }: LoginInput): Promise<AuthResult
   if (!user.isVerified) {
     throw new Error("Email not verified");
   }
+
+  const profileCompleted = isProfileCompleted(user);
+  if (!profileCompleted) {
+    return {
+      user,
+      needsProfileSetup: true,
+      setupToken: buildSetupToken(user),
+    };
+  }
+
+  const tokens = await buildTokens(user);
+
+  return { user, tokens };
+};
+
+export const completeProfile = async (
+  userId: string,
+  { username, country, avatarUrl, favorites }: CompleteProfileInput
+): Promise<AuthFlowResult> => {
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  if (!user.isVerified) {
+    throw new Error("Email not verified");
+  }
+
+  const normalizedUsername = username.trim().toLowerCase();
+  const existingUsername = await User.findOne({
+    username: normalizedUsername,
+    _id: { $ne: userId },
+  });
+
+  if (existingUsername) {
+    throw new Error("Username already taken");
+  }
+
+  const sanitizedFavorites = Array.from(
+    new Set((favorites || []).map((item) => item.trim()).filter(Boolean))
+  );
+
+  user.username = normalizedUsername;
+  user.avatarUrl = avatarUrl.trim();
+  user.favorites = sanitizedFavorites;
+  user.location = {
+    city: user.location?.city || "",
+    country: country.trim(),
+  };
+  user.profileCompleted = true;
+
+  await user.save();
 
   const tokens = await buildTokens(user);
 
@@ -245,6 +356,10 @@ export const refreshTokens = async ({ refreshToken }: RefreshTokenInput): Promis
     throw new Error("User not found");
   }
 
+  if (!user.isVerified || !isProfileCompleted(user)) {
+    throw new Error("Profile setup incomplete");
+  }
+
   return buildTokens(user);
 };
 
@@ -264,10 +379,45 @@ export const logout = async ({ refreshToken }: RefreshTokenInput): Promise<void>
   }
 };
 
-export const verifyEmailWithOtp = async ({ email, otp }: VerifyEmailInput): Promise<AuthResult> => {
+export const verifyEmailWithOtp = async ({
+  email,
+  otp,
+}: VerifyEmailInput): Promise<AuthFlowResult> => {
   const normalizedEmail = email.trim().toLowerCase();
-  const user = await User.findOne({ email: normalizedEmail });
 
+  // First try pending registrations (new flow)
+  const pending = await PendingRegistration.findOne({ email: normalizedEmail });
+  if (pending) {
+    if (!pending.otp || pending.otp !== otp || pending.otpExpiresAt < new Date()) {
+      throw new Error("Invalid or expired OTP");
+    }
+
+    // avoid duplicate verified users
+    const existingVerified = await User.findOne({ email: normalizedEmail, isVerified: true });
+    if (existingVerified) {
+      throw new Error("Email already verified. Please login.");
+    }
+
+    const user = await User.create({
+      name: pending.name,
+      email: pending.email,
+      phone: pending.phone,
+      password: pending.password,
+      isVerified: true,
+      profileCompleted: false,
+    });
+
+    await pending.deleteOne();
+
+    return {
+      user,
+      needsProfileSetup: true,
+      setupToken: buildSetupToken(user),
+    };
+  }
+
+  // Legacy path: user already exists but unverified
+  const user = await User.findOne({ email: normalizedEmail });
   if (!user) {
     throw new Error("Invalid OTP");
   }
@@ -286,13 +436,26 @@ export const verifyEmailWithOtp = async ({ email, otp }: VerifyEmailInput): Prom
   user.emailVerificationExpires = null;
   await user.save();
 
-  const tokens = await buildTokens(user);
-
-  return { user, tokens };
+  const profileCompleted = isProfileCompleted(user);
+  return {
+    user,
+    needsProfileSetup: !profileCompleted,
+    setupToken: profileCompleted ? undefined : buildSetupToken(user),
+  };
 };
 
 export const resendEmailVerificationOtp = async ({ email }: ResendEmailOtpInput): Promise<void> => {
   const normalizedEmail = email.trim().toLowerCase();
+  const pending = await PendingRegistration.findOne({ email: normalizedEmail });
+  if (pending) {
+    const otp = generateOtp();
+    pending.otp = otp;
+    pending.otpExpiresAt = addMinutes(30);
+    await pending.save();
+    await sendOtpEmail(normalizedEmail, otp);
+    return;
+  }
+
   const user = await User.findOne({ email: normalizedEmail });
 
   if (!user) {
@@ -359,10 +522,6 @@ export const sendEmailVerificationOtp = async (user: IUser): Promise<void> => {
   await user.save();
 
   if (user.email) {
-    await sendMail({
-      to: user.email,
-      subject: "Verify your email",
-      text: `Your verification OTP is ${otp}. It expires in 30 minutes.`,
-    });
+    await sendOtpEmail(user.email, otp);
   }
 };

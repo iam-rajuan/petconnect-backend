@@ -53,6 +53,18 @@ export const verifyPhoneOtpSchema = z.object({
   otp: z.string().trim().length(6, "OTP must be 6 digits"),
 });
 
+export const completeProfileSchema = z.object({
+  username: z
+    .string()
+    .trim()
+    .min(3, "Username must be at least 3 characters")
+    .max(30, "Username must be at most 30 characters")
+    .regex(/^[a-zA-Z0-9._-]+$/, "Username can only contain letters, numbers, dots, dashes, and underscores"),
+  country: z.string().trim().min(2, "Country is required"),
+  avatarUrl: z.string().trim().url("Invalid avatar URL"),
+  favorites: z.array(z.string().trim()).max(20, "Too many favorites").default([]),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>;
@@ -62,3 +74,4 @@ export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type SendPhoneOtpInput = z.infer<typeof sendPhoneOtpSchema>;
 export type VerifyPhoneOtpInput = z.infer<typeof verifyPhoneOtpSchema>;
+export type CompleteProfileInput = z.infer<typeof completeProfileSchema>;

@@ -1,44 +1,29 @@
-import nodemailer, { Transporter } from "nodemailer";
+import { Resend } from "resend";
+import { env } from "../env";
 
 interface SendMailOptions {
-  to: string;
+  to: string | string[];
   subject: string;
-  text: string;
+  text?: string;
   html?: string;
 }
 
-const canSend =
-  !!process.env.SMTP_HOST &&
-  !!process.env.SMTP_PORT &&
-  !!process.env.SMTP_USER &&
-  !!process.env.SMTP_PASS &&
-  !!process.env.MAIL_FROM;
-
-let transporter: Transporter | null = null;
-
-if (canSend) {
-  transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT) || 587,
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
-}
+const resendClient = new Resend(env.RESEND_API_KEY);
 
 export const sendMail = async ({ to, subject, text, html }: SendMailOptions): Promise<void> => {
-  if (!canSend || !transporter) {
-    console.log("[MAIL:FALLBACK]", { to, subject, text, html });
-    return;
-  }
+  try {
+    const payload = {
+      from: env.RESEND_FROM,
+      to,
+      subject,
+      text,
+      html,
+    };
 
-  await transporter.sendMail({
-    from: process.env.MAIL_FROM,
-    to,
-    subject,
-    text,
-    html,
-  });
+    // Resend's current type definition requires a React template; cast to bypass when sending raw text/html.
+    await resendClient.emails.send(payload as any);
+  } catch (err) {
+    console.error("[MAIL:RESEND_ERROR]", err);
+    throw err instanceof Error ? err : new Error(String(err));
+  }
 };

@@ -1,38 +1,43 @@
 import { Request, Response, NextFunction } from "express";
-import { verifyToken, AuthTokenPayload } from "../utils/jwt";
+import { verifyToken, AuthTokenPayload, TokenType } from "../utils/jwt";
 
 export interface AuthRequest extends Request {
   user?: AuthTokenPayload;
 }
 
-const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
+const buildAuthMiddleware =
+  (allowedTypes: TokenType[] = ["access"]) =>
+  (req: AuthRequest, res: Response, next: NextFunction) => {
+    const authHeader = req.headers.authorization;
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({
-      success: false,
-      message: "Unauthorized: No token provided",
-    });
-  }
-
-  const token = authHeader.split(" ")[1];
-
-  try {
-    const decoded = verifyToken(token);
-    if (decoded.type !== "access") {
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({
         success: false,
-        message: "Invalid token type",
+        message: "Unauthorized: No token provided",
       });
     }
-    req.user = decoded;
-    next();
-  } catch (err) {
-    return res.status(401).json({
-      success: false,
-      message: "Invalid or expired token",
-    });
-  }
-};
+
+    const token = authHeader.split(" ")[1];
+
+    try {
+      const decoded = verifyToken(token);
+      if (!allowedTypes.includes(decoded.type)) {
+        return res.status(401).json({
+          success: false,
+          message: "Invalid token type",
+        });
+      }
+      req.user = decoded;
+      next();
+    } catch (err) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid or expired token",
+      });
+    }
+  };
+
+const authMiddleware = buildAuthMiddleware(["access"]);
+export const onboardingAuth = buildAuthMiddleware(["access", "setup"]);
 
 export default authMiddleware;

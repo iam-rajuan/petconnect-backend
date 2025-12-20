@@ -7,6 +7,7 @@ export interface IUser extends Document {
   email?: string;
   phone?: string;
   password: string;
+  username?: string;
   role: UserRole;
   isVerified: boolean;
   status: "pending" | "active" | "rejected";
@@ -21,6 +22,8 @@ export interface IUser extends Document {
   emailVerificationExpires?: Date | null;
   resetPasswordToken?: string | null;
   resetPasswordExpires?: Date | null;
+  favorites?: string[];
+  profileCompleted?: boolean;
   createdAt: Date;
   updatedAt: Date;
   isPhoneVerified?: boolean;
@@ -41,6 +44,13 @@ const userSchema = new mongoose.Schema<IUser>(
       type: String,
       unique: true,
       sparse: true,
+    },
+    username: {
+      type: String,
+      unique: true,
+      sparse: true,
+      lowercase: true,
+      trim: true,
     },
     password: { type: String, required: false, default: null },
     role: {
@@ -82,6 +92,14 @@ const userSchema = new mongoose.Schema<IUser>(
     emailVerificationExpires: { type: Date, default: null },
     resetPasswordToken: { type: String, default: null },
     resetPasswordExpires: { type: Date, default: null },
+    favorites: {
+      type: [String],
+      default: [],
+    },
+    profileCompleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
