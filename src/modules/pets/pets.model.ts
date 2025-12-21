@@ -12,7 +12,11 @@ export interface IPet extends Document {
   species: string;
   breed?: string;
   age?: number;
+  weightLbs?: number;
   gender?: "male" | "female";
+  trained?: boolean;
+  neutered?: boolean;
+  personality?: string[];
   bio?: string;
   avatarUrl?: string | null;
   photos: string[];
@@ -37,7 +41,11 @@ const petSchema = new mongoose.Schema<IPet>(
     species: { type: String, required: true },
     breed: { type: String },
     age: { type: Number },
+    weightLbs: { type: Number },
     gender: { type: String, enum: ["male", "female"], default: undefined },
+    trained: { type: Boolean },
+    neutered: { type: Boolean },
+    personality: { type: [String], default: [] },
     bio: { type: String },
     avatarUrl: { type: String, default: null },
     photos: { type: [String], default: [] },

@@ -10,14 +10,29 @@ export const ensureOwnedPet = async (ownerId: string, petId: string): Promise<IP
 };
 
 export const createPet = async (ownerId: string, payload: CreatePetInput): Promise<IPet> => {
+  const species = payload.species ?? payload.type;
+  if (!species) {
+    throw new Error("Pet type is required");
+  }
+  const personality = (payload.personality || [])
+    .map((trait) => trait.trim())
+    .filter(Boolean)
+    .slice(0, 5);
+  const about = payload.about ?? payload.bio;
+
   const pet = await Pet.create({
     owner: ownerId,
     name: payload.name.trim(),
-    species: payload.species.trim(),
+    species: species.trim(),
     breed: payload.breed?.trim(),
     age: payload.age,
+    weightLbs: payload.weightLbs,
     gender: payload.gender,
-    bio: payload.bio?.trim(),
+    trained: payload.trained,
+    neutered: payload.neutered,
+    personality,
+    bio: about?.trim(),
+    photos: payload.photos || [],
   });
   return pet;
 };
@@ -39,10 +54,22 @@ export const updatePet = async (
 
   if (payload.name !== undefined) pet.name = payload.name.trim();
   if (payload.species !== undefined) pet.species = payload.species.trim();
+  if (payload.type !== undefined) pet.species = payload.type.trim();
   if (payload.breed !== undefined) pet.breed = payload.breed.trim();
   if (payload.age !== undefined) pet.age = payload.age;
+  if (payload.weightLbs !== undefined) pet.weightLbs = payload.weightLbs;
   if (payload.gender !== undefined) pet.gender = payload.gender;
+  if (payload.trained !== undefined) pet.trained = payload.trained;
+  if (payload.neutered !== undefined) pet.neutered = payload.neutered;
+  if (payload.personality !== undefined) {
+    pet.personality = payload.personality
+      .map((trait) => trait.trim())
+      .filter(Boolean)
+      .slice(0, 5);
+  }
+  if (payload.about !== undefined) pet.bio = payload.about.trim();
   if (payload.bio !== undefined) pet.bio = payload.bio.trim();
+  if (payload.photos !== undefined) pet.photos = payload.photos;
 
   await pet.save();
   return pet;
