@@ -82,3 +82,44 @@ export const updateAvatar = async (req: AuthRequest, res: Response) => {
     res.status(400).json({ success: false, message });
   }
 };
+
+export const requestDeletion = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+    const user = await usersService.requestAccountDeletion(req.user.id);
+    res.json({
+      success: true,
+      message: "Deletion request received",
+      data: {
+        id: user._id,
+        deletionRequestedAt: user.deletionRequestedAt,
+      },
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to request deletion";
+    res.status(400).json({ success: false, message });
+  }
+};
+
+export const withdrawDeletion = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+    const user = await usersService.withdrawAccountDeletion(req.user.id);
+    res.json({
+      success: true,
+      message: "Deletion request withdrawn",
+      data: {
+        id: user._id,
+        deletionRequestedAt: user.deletionRequestedAt,
+      },
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to withdraw deletion";
+    res.status(400).json({ success: false, message });
+  }
+};
+

@@ -37,6 +37,8 @@ router.get("/:id", validateParams(userIdParamSchema), usersController.getUserByI
 router.patch("/me", validate(updateProfileSchema), usersController.updateMe);
 router.patch("/me/password", validate(changePasswordSchema), usersController.changePassword);
 router.patch("/me/avatar", validate(updateAvatarSchema), usersController.updateAvatar);
+router.post("/me/delete-request", usersController.requestDeletion);
+router.post("/me/delete-request/withdraw", usersController.withdrawDeletion);
 
 export default router;
 

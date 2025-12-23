@@ -2,6 +2,7 @@ import http from "http";
 import app from "./app";
 import connectDB from "./config/db";
 import { env } from "./env";
+import { startUserDeletionJob } from "./jobs/userDeletion.job";
 
 
 
@@ -9,6 +10,8 @@ async function startServer() {
   try {
     await connectDB(env.MONGO_URI);
     console.log("MongoDB connected");
+
+    startUserDeletionJob();
 
     const server = http.createServer(app);
 

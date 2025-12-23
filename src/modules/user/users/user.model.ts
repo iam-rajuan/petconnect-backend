@@ -10,7 +10,7 @@ export interface IUser extends Document {
   username?: string;
   role: UserRole;
   isVerified: boolean;
-  status: "pending" | "active" | "rejected";
+  status: "active" | "deletion_request";
   isSuspended: boolean;
   bio?: string;
   avatarUrl?: string | null;
@@ -32,6 +32,7 @@ export interface IUser extends Document {
   firebaseUid?: string | null;
   phoneVerificationToken?: string | null;
   phoneVerificationExpires?: Date | null;
+  deletionRequestedAt?: Date | null;
 }
 
 const userSchema = new mongoose.Schema<IUser>(
@@ -62,7 +63,7 @@ const userSchema = new mongoose.Schema<IUser>(
     },
     status: {
       type: String,
-      enum: ["pending", "active", "rejected"],
+      enum: ["active", "deletion_request"],
       default: "active",
     },
     isSuspended: {
@@ -103,6 +104,10 @@ const userSchema = new mongoose.Schema<IUser>(
     profileCompleted: {
       type: Boolean,
       default: false,
+    },
+    deletionRequestedAt: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true }

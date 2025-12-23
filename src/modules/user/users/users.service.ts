@@ -125,3 +125,36 @@ export const updateUserAvatar = async (userId: string, avatarUrl: string): Promi
   await user.save();
   return user;
 };
+
+export const requestAccountDeletion = async (userId: string): Promise<IUser> => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+  if (user.role !== "user") {
+    throw new Error("Only pet owners can request deletion");
+  }
+  if (!user.deletionRequestedAt) {
+    user.deletionRequestedAt = new Date();
+    user.status = "deletion_request";
+    await user.save();
+  }
+  return user;
+};
+
+export const withdrawAccountDeletion = async (userId: string): Promise<IUser> => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+  if (user.role !== "user") {
+    throw new Error("Only pet owners can withdraw deletion");
+  }
+  if (user.deletionRequestedAt) {
+    user.deletionRequestedAt = null;
+    user.status = "active";
+    await user.save();
+  }
+  return user;
+};
+

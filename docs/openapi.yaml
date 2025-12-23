@@ -8,7 +8,9 @@ tags:
   - name: AdminAuth
   - name: AdminProfile
   - name: AdminPets
+  - name: AdminUsers
   - name: UserAuth
+  - name: UserProfiles
   - name: UserUploads
 components:
   securitySchemes:
@@ -167,6 +169,91 @@ components:
         profileCompleted:
           type: boolean
           example: true
+        deletionRequestedAt:
+          type: string
+          format: date-time
+          nullable: true
+    AdminUserSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 64f1c3e2d2f2b70012a8b0aa
+        name:
+          type: string
+          example: Jane Doe
+        username:
+          type: string
+          example: jane_doe
+        email:
+          type: string
+          format: email
+          example: jane@example.com
+        status:
+          type: string
+          enum: [active, deletion_request]
+        deletionRequestedAt:
+          type: string
+          format: date-time
+          nullable: true
+        daysLeft:
+          type: integer
+          minimum: 0
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+    AdminUserDetails:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 64f1c3e2d2f2b70012a8b0aa
+        name:
+          type: string
+          example: Jane Doe
+        username:
+          type: string
+          example: jane_doe
+        email:
+          type: string
+          format: email
+          example: jane@example.com
+        phone:
+          type: string
+          example: "9876543210"
+        status:
+          type: string
+          enum: [active, deletion_request]
+        deletionRequestedAt:
+          type: string
+          format: date-time
+          nullable: true
+        daysLeft:
+          type: integer
+          minimum: 0
+          nullable: true
+        isVerified:
+          type: boolean
+          example: true
+        isPhoneVerified:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    DeletionRequestResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 64f1c3e2d2f2b70012a8b0aa
+        deletionRequestedAt:
+          type: string
+          format: date-time
     AuthTokens:
       type: object
       properties:
@@ -631,6 +718,83 @@ paths:
                     $ref: "#/components/schemas/PetBreed"
         "404":
           description: Pet breed not found
+  /admin/users:
+    get:
+      tags: [AdminUsers]
+      summary: Get all pet owners
+      security:
+        - AccessToken: []
+      responses:
+        "200":
+          description: Users list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AdminUserSummary"
+        "401":
+          description: Unauthorized
+  /admin/users/{id}:
+    get:
+      tags: [AdminUsers]
+      summary: Get pet owner details
+      security:
+        - AccessToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: "#/components/schemas/AdminUserDetails"
+        "401":
+          description: Unauthorized
+        "404":
+          description: User not found
+    delete:
+      tags: [AdminUsers]
+      summary: Delete pet owner
+      security:
+        - AccessToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        "401":
+          description: Unauthorized
+        "404":
+          description: User not found
     delete:
       tags: [AdminPets]
       summary: Delete pet breed
@@ -924,3 +1088,194 @@ paths:
           description: Upload failed
         "401":
           description: Unauthorized
+  /users/me:
+    get:
+      tags: [UserProfiles]
+      summary: Get own profile
+      security:
+        - AccessToken: []
+      responses:
+        "200":
+          description: Profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+    patch:
+      tags: [UserProfiles]
+      summary: Update own profile
+      security:
+        - AccessToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                bio:
+                  type: string
+                phone:
+                  type: string
+                address:
+                  type: string
+                city:
+                  type: string
+                country:
+                  type: string
+                favorites:
+                  type: array
+                  items:
+                    type: string
+                location:
+                  $ref: "#/components/schemas/Location"
+      responses:
+        "200":
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: "#/components/schemas/User"
+        "400":
+          description: Update failed
+        "401":
+          description: Unauthorized
+  /users/me/password:
+    patch:
+      tags: [UserProfiles]
+      summary: Change own password
+      security:
+        - AccessToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [currentPassword, newPassword]
+              properties:
+                currentPassword:
+                  type: string
+                  format: password
+                newPassword:
+                  type: string
+                  format: password
+      responses:
+        "200":
+          description: Password changed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        "400":
+          description: Change failed
+        "401":
+          description: Unauthorized
+  /users/me/avatar:
+    patch:
+      tags: [UserProfiles]
+      summary: Update own avatar URL
+      security:
+        - AccessToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [avatarUrl]
+              properties:
+                avatarUrl:
+                  type: string
+                  format: uri
+      responses:
+        "200":
+          description: Avatar updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: "#/components/schemas/User"
+        "400":
+          description: Update failed
+        "401":
+          description: Unauthorized
+  /users/me/delete-request:
+    post:
+      tags: [UserProfiles]
+      summary: Request account deletion
+      security:
+        - AccessToken: []
+      responses:
+        "200":
+          description: Deletion request received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: "#/components/schemas/DeletionRequestResponse"
+        "400":
+          description: Request failed
+        "401":
+          description: Unauthorized
+  /users/{id}:
+    get:
+      tags: [UserProfiles]
+      summary: Get user by id
+      security:
+        - AccessToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+        "404":
+          description: User not found

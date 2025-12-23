@@ -1,5 +1,7 @@
+import bcrypt from "bcrypt";
 import Admin from "../auth/admin.model";
-import { UpdateProfileInput } from "./profile.validation";
+import AdminRefreshToken from "../auth/adminRefreshToken.model";
+import { ChangePasswordInput, UpdateProfileInput } from "./profile.validation";
 
 export interface AdminProfile {
   id: string;
@@ -52,4 +54,27 @@ export const updateProfile = async (
     name: admin.name,
     email: admin.email,
   };
+};
+
+
+export const changePassword = async (
+  adminId: string,
+  payload: ChangePasswordInput
+): Promise<void> => {
+  const admin = await requireAdmin(adminId);
+
+  const matches = await bcrypt.compare(payload.currentPassword.trim(), admin.password);
+  if (!matches) {
+    throw new Error("Incorrect current password");
+  }
+
+  const hashed = await bcrypt.hash(payload.newPassword.trim(), 10);
+  admin.password = hashed;
+  admin.tokenVersion = (admin.tokenVersion ?? 0) + 1;
+  await admin.save();
+
+  await AdminRefreshToken.updateMany(
+    { admin: admin._id, revoked: false },
+    { revoked: true, revokedAt: new Date() }
+  );
 };
