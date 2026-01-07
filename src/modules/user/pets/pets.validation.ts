@@ -4,17 +4,9 @@ const petTypeSchema = z.string().trim().min(2, "Pet type is required");
 const bioSchema = z.string().trim().max(1000, "About must be at most 1000 characters");
 const photoUrlSchema = z.string().trim().url("Invalid photo URL");
 const avatarUrlSchema = z.string().trim().url("Invalid avatar URL");
-const yesNoBooleanSchema = z.preprocess((value) => {
-  if (typeof value === "boolean") {
-    return value;
-  }
-  if (typeof value === "string") {
-    const normalized = value.trim().toLowerCase();
-    if (normalized === "yes") return true;
-    if (normalized === "no") return false;
-  }
-  return value;
-}, z.boolean());
+const yesNoBooleanSchema = z
+  .union([z.boolean(), z.string()])
+  .transform((val) => val === true || val === "true");
 const nonNegativeNumber = (message: string) =>
   z.preprocess((value) => {
     if (typeof value === "string") {
