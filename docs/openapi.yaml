@@ -689,6 +689,55 @@ components:
           type: integer
         totalPages:
           type: integer
+    AdoptionHealthRecord:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [vaccination, checkup, medication, tick_flea, surgery, dental, other]
+        recordDetails:
+          type: object
+          properties:
+            recordName:
+              type: string
+            batchLotNo:
+              type: string
+              nullable: true
+            otherInfo:
+              type: string
+              nullable: true
+        veterinarian:
+          type: object
+          properties:
+            designation:
+              type: string
+            name:
+              type: string
+            clinicName:
+              type: string
+            licenseNo:
+              type: string
+            contact:
+              type: string
+        vitalSigns:
+          type: object
+          properties:
+            weight:
+              type: string
+            temperature:
+              type: string
+            heartRate:
+              type: string
+            respiratory:
+              type: string
+            status:
+              type: string
+              enum: [normal, high, low]
+        attachments:
+          type: array
+          items:
+            type: string
+            format: uri
     AdoptionListing:
       type: object
       properties:
@@ -696,8 +745,13 @@ components:
           type: string
         pet:
           type: string
+          nullable: true
         owner:
           type: string
+          nullable: true
+        createdByRole:
+          type: string
+          enum: [user, admin]
         title:
           type: string
         description:
@@ -718,14 +772,35 @@ components:
         age:
           type: number
           nullable: true
+        weightLbs:
+          type: number
+          nullable: true
         gender:
           type: string
           enum: [male, female]
+          nullable: true
+        trained:
+          type: boolean
+        vaccinated:
+          type: boolean
+        neutered:
+          type: boolean
+        personality:
+          type: array
+          items:
+            type: string
+        aboutPet:
+          type: string
           nullable: true
         avatarUrl:
           type: string
           format: uri
           nullable: true
+        photos:
+          type: array
+          items:
+            type: string
+            format: uri
         contactName:
           type: string
         contactEmail:
@@ -735,6 +810,16 @@ components:
         contactPhone:
           type: string
           nullable: true
+        shelterName:
+          type: string
+          nullable: true
+        shelterPhone:
+          type: string
+          nullable: true
+        healthRecords:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdoptionHealthRecord"
         createdAt:
           type: string
           format: date-time
@@ -1019,6 +1104,12 @@ components:
           type: string
           format: password
     UpdateServiceStatusInput:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [pending, completed]
     ServiceCatalog:
       type: object
       properties:
@@ -1098,6 +1189,10 @@ components:
     BookingItem:
       type: object
       properties:
+        service:
+          type: string
+        pet:
+          type: string
         serviceName:
           type: string
           example: Full Grooming
@@ -1126,18 +1221,41 @@ components:
         id:
           type: string
           example: 64f1c3e2d2f2b70012a8b0aa
+        customer:
+          type: string
+        provider:
+          type: string
+          nullable: true
+        pets:
+          type: array
+          items:
+            type: string
+        services:
+          type: array
+          items:
+            type: string
         scheduledAt:
           type: string
           format: date-time
         reminderType:
           type: string
           enum: [none, day_before, week_before]
+        reminderSentAt:
+          type: string
+          format: date-time
+          nullable: true
         status:
           type: string
           enum: [pending, completed]
         paymentStatus:
           type: string
           enum: [paid, unpaid]
+        paymentIntentId:
+          type: string
+          nullable: true
+        paymentReceiptUrl:
+          type: string
+          nullable: true
         subtotal:
           type: number
           example: 90
@@ -1153,8 +1271,9 @@ components:
         currency:
           type: string
           example: usd
-        paymentReceiptUrl:
+        paidAt:
           type: string
+          format: date-time
           nullable: true
         items:
           type: array
@@ -1225,12 +1344,6 @@ components:
               type: integer
             limit:
               type: integer
-      type: object
-      required: [status]
-      properties:
-        status:
-          type: string
-          enum: [pending, completed]
     PetType:
       type: object
       properties:
@@ -1743,7 +1856,7 @@ paths:
   /bookings/{id}/confirm:
     post:
       tags: [UserBookings]
-      summary: Confirm payment for a booking
+      summary: Get payment confirmation for a booking
       security:
         - AccessToken: []
       parameters:
@@ -1754,7 +1867,7 @@ paths:
             type: string
       responses:
         "200":
-          description: Payment confirmed
+          description: Payment confirmed (paid via webhook)
           content:
             application/json:
               schema:
@@ -2344,6 +2457,7 @@ paths:
                   items:
                     type: string
                     format: binary
+                  description: Up to 3 attachments
       responses:
         "201":
           description: Health record added
