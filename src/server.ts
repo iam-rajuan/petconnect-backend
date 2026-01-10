@@ -4,6 +4,7 @@ import connectDB from "./config/db";
 import { env } from "./env";
 import { startUserDeletionJob } from "./jobs/userDeletion.job";
 import { startServiceReminderJob } from "./jobs/serviceReminder.job";
+import { initSocketServer } from "./realtime/socket";
 
 
 
@@ -16,6 +17,7 @@ async function startServer() {
     startServiceReminderJob();
 
     const server = http.createServer(app);
+    initSocketServer(server);
 
     server.listen(env.PORT, () => {
       console.log(`Server running on port ${env.PORT}`);
