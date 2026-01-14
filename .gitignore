@@ -42,7 +42,7 @@ Thumbs.db
 coverage/
 tmp/
 temp/
-uploads/
+# uploads/
 public/uploads/
 !src/modules/uploads/
 !src/modules/uploads/**
