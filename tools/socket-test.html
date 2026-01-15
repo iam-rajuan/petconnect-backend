@@ -7,11 +7,15 @@
     <style>
       :root {
         --bg: #0f172a;
-        --panel: #111827;
+        --panel: #0f172a;
+        --panel-2: #111827;
         --accent: #22c55e;
+        --accent-2: #16a34a;
         --text: #e5e7eb;
         --muted: #94a3b8;
         --border: #1f2937;
+        --border-2: #243244;
+        --shadow: 0 18px 40px rgba(2, 6, 23, 0.45);
       }
       * { box-sizing: border-box; }
       body {
@@ -21,7 +25,7 @@
         color: var(--text);
         padding: 24px;
       }
-      h1 { margin: 0 0 12px; font-size: 22px; }
+      h1 { margin: 0 0 8px; font-size: 22px; letter-spacing: 0.2px; }
       p { margin: 0 0 18px; color: var(--muted); }
       .grid {
         display: grid;
@@ -29,7 +33,7 @@
         gap: 16px;
       }
       .card {
-        background: var(--panel);
+        background: linear-gradient(180deg, var(--panel-2) 0%, var(--panel) 100%);
         border: 1px solid var(--border);
         border-radius: 12px;
         padding: 16px;
@@ -37,6 +41,7 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
+        box-shadow: var(--shadow);
       }
       label { font-size: 12px; color: var(--muted); }
       input, textarea, button {
@@ -47,19 +52,33 @@
         background: #0b1220;
         color: var(--text);
       }
+      input:focus, textarea:focus {
+        outline: none;
+        border-color: #334155;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+      }
       textarea { min-height: 70px; resize: vertical; }
       button {
         cursor: pointer;
-        background: var(--accent);
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
         color: #04110a;
         font-weight: 600;
         border: none;
+        box-shadow: 0 6px 14px rgba(34, 197, 94, 0.2);
+        transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
       }
       button.secondary {
-        background: transparent;
-        border: 1px solid var(--border);
+        background: #0b1220;
         color: var(--text);
+        border: 1px solid var(--border-2);
+        box-shadow: none;
       }
+      button:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.05);
+      }
+      button:active { transform: translateY(0); box-shadow: none; }
+      button:disabled { opacity: 0.6; cursor: not-allowed; }
       .row { display: flex; gap: 8px; }
       .row > * { flex: 1; }
       .log {
@@ -72,6 +91,7 @@
         font-family: Consolas, Monaco, "Courier New", monospace;
         font-size: 12px;
         white-space: pre-wrap;
+        box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.05);
       }
       .status { font-size: 12px; color: var(--muted); }
       .ok { color: #86efac; }
@@ -88,12 +108,16 @@
         <h2>Client A</h2>
         <label>Base URL (socket server)</label>
         <input type="text" id="aBaseUrl" value="http://localhost:5191" />
+        <label>Base URL (REST API)</label>
+        <input type="text" id="aApiUrl" value="http://localhost:5191/api/v1" />
         <label>Access token</label>
         <input type="text" id="aToken" placeholder="paste access token" />
         <label>Recipient userId (B)</label>
         <input type="text" id="aRecipient" placeholder="paste user B id" />
         <label>Message body</label>
         <textarea id="aBody">Hello from A</textarea>
+        <label>Edit message body</label>
+        <input type="text" id="aEditBody" placeholder="edited text" />
         <div class="row">
           <button id="aConnect">Connect</button>
           <button id="aDisconnect" class="secondary">Disconnect</button>
@@ -104,6 +128,31 @@
         </div>
         <label>Conversation ID (optional)</label>
         <input type="text" id="aConversation" placeholder="conversation id to join" />
+        <label>Message ID (for edit/delete)</label>
+        <input type="text" id="aMessageId" placeholder="message id" />
+        <label>Search name</label>
+        <input type="text" id="aSearch" placeholder="search users by name" />
+        <label>Block user ID</label>
+        <input type="text" id="aBlockUserId" placeholder="user id to block/unblock" />
+        <label>Attachment files</label>
+        <input type="file" id="aFiles" multiple />
+        <div class="row">
+          <button id="aListConversations" class="secondary">List Conversations</button>
+          <button id="aListMessages" class="secondary">List Messages</button>
+        </div>
+        <div class="row">
+          <button id="aMarkRead" class="secondary">Mark Read</button>
+          <button id="aSendAttachment" class="secondary">Send Attachment</button>
+        </div>
+        <div class="row">
+          <button id="aUpdateMessage" class="secondary">Update Message</button>
+          <button id="aDeleteMessage" class="secondary">Delete Message</button>
+        </div>
+        <div class="row">
+          <button id="aSearchUsers" class="secondary">Search Users</button>
+          <button id="aBlockUser" class="secondary">Block</button>
+          <button id="aUnblockUser" class="secondary">Unblock</button>
+        </div>
         <div class="status" id="aStatus">Status: disconnected</div>
         <div class="log" id="aLog"></div>
       </div>
@@ -112,12 +161,16 @@
         <h2>Client B</h2>
         <label>Base URL (socket server)</label>
         <input type="text" id="bBaseUrl" value="http://localhost:5191" />
+        <label>Base URL (REST API)</label>
+        <input type="text" id="bApiUrl" value="http://localhost:5191/api/v1" />
         <label>Access token</label>
         <input type="text" id="bToken" placeholder="paste access token" />
         <label>Recipient userId (A)</label>
         <input type="text" id="bRecipient" placeholder="paste user A id" />
         <label>Message body</label>
         <textarea id="bBody">Hello from B</textarea>
+        <label>Edit message body</label>
+        <input type="text" id="bEditBody" placeholder="edited text" />
         <div class="row">
           <button id="bConnect">Connect</button>
           <button id="bDisconnect" class="secondary">Disconnect</button>
@@ -128,6 +181,31 @@
         </div>
         <label>Conversation ID (optional)</label>
         <input type="text" id="bConversation" placeholder="conversation id to join" />
+        <label>Message ID (for edit/delete)</label>
+        <input type="text" id="bMessageId" placeholder="message id" />
+        <label>Search name</label>
+        <input type="text" id="bSearch" placeholder="search users by name" />
+        <label>Block user ID</label>
+        <input type="text" id="bBlockUserId" placeholder="user id to block/unblock" />
+        <label>Attachment files</label>
+        <input type="file" id="bFiles" multiple />
+        <div class="row">
+          <button id="bListConversations" class="secondary">List Conversations</button>
+          <button id="bListMessages" class="secondary">List Messages</button>
+        </div>
+        <div class="row">
+          <button id="bMarkRead" class="secondary">Mark Read</button>
+          <button id="bSendAttachment" class="secondary">Send Attachment</button>
+        </div>
+        <div class="row">
+          <button id="bUpdateMessage" class="secondary">Update Message</button>
+          <button id="bDeleteMessage" class="secondary">Delete Message</button>
+        </div>
+        <div class="row">
+          <button id="bSearchUsers" class="secondary">Search Users</button>
+          <button id="bBlockUser" class="secondary">Block</button>
+          <button id="bUnblockUser" class="secondary">Unblock</button>
+        </div>
         <div class="status" id="bStatus">Status: disconnected</div>
         <div class="log" id="bLog"></div>
       </div>
@@ -142,28 +220,82 @@
       function setupClient(prefix) {
         const els = {
           baseUrl: document.getElementById(prefix + "BaseUrl"),
+          apiUrl: document.getElementById(prefix + "ApiUrl"),
           token: document.getElementById(prefix + "Token"),
           recipient: document.getElementById(prefix + "Recipient"),
           body: document.getElementById(prefix + "Body"),
+          editBody: document.getElementById(prefix + "EditBody"),
           connect: document.getElementById(prefix + "Connect"),
           disconnect: document.getElementById(prefix + "Disconnect"),
           send: document.getElementById(prefix + "Send"),
           join: document.getElementById(prefix + "Join"),
           conversation: document.getElementById(prefix + "Conversation"),
+          messageId: document.getElementById(prefix + "MessageId"),
+          search: document.getElementById(prefix + "Search"),
+          blockUserId: document.getElementById(prefix + "BlockUserId"),
+          files: document.getElementById(prefix + "Files"),
+          listConversations: document.getElementById(prefix + "ListConversations"),
+          listMessages: document.getElementById(prefix + "ListMessages"),
+          markRead: document.getElementById(prefix + "MarkRead"),
+          sendAttachment: document.getElementById(prefix + "SendAttachment"),
+          updateMessage: document.getElementById(prefix + "UpdateMessage"),
+          deleteMessage: document.getElementById(prefix + "DeleteMessage"),
+          searchUsers: document.getElementById(prefix + "SearchUsers"),
+          blockUser: document.getElementById(prefix + "BlockUser"),
+          unblockUser: document.getElementById(prefix + "UnblockUser"),
           status: document.getElementById(prefix + "Status"),
           log: document.getElementById(prefix + "Log"),
         };
 
         let socket = null;
 
+        const formatLog = (value) => {
+          if (typeof value === "string") {
+            const trimmed = value.trim();
+            if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+              try {
+                return JSON.stringify(JSON.parse(trimmed), null, 2);
+              } catch {
+                return value;
+              }
+            }
+            return value;
+          }
+          try {
+            return JSON.stringify(value, null, 2);
+          } catch {
+            return String(value);
+          }
+        };
+
         const log = (msg) => {
           const time = new Date().toLocaleTimeString();
-          els.log.textContent = `[${time}] ${msg}\n` + els.log.textContent;
+          const formatted = formatLog(msg);
+          els.log.textContent = `[${time}]\n${formatted}\n\n` + els.log.textContent;
+        };
+
+        const logEvent = (label, payload) => {
+          log({ event: label, payload });
         };
 
         const setStatus = (text, ok) => {
           els.status.textContent = "Status: " + text;
           els.status.className = "status " + (ok ? "ok" : "bad");
+        };
+
+        const apiRequest = async (path, options = {}) => {
+          const url = els.apiUrl.value.trim() + path;
+          const headers = options.headers || {};
+          if (!headers.Authorization) {
+            headers.Authorization = "Bearer " + els.token.value.trim();
+          }
+          const response = await fetch(url, { ...options, headers });
+          const text = await response.text();
+          try {
+            return { status: response.status, data: JSON.parse(text) };
+          } catch {
+            return { status: response.status, data: text };
+          }
         };
 
         els.connect.addEventListener("click", () => {
@@ -194,7 +326,15 @@
           });
 
           socket.on("message:new", (payload) => {
-            log("message:new -> " + JSON.stringify(payload));
+            logEvent("message:new", payload);
+          });
+
+          socket.on("message:updated", (payload) => {
+            logEvent("message:updated", payload);
+          });
+
+          socket.on("message:deleted", (payload) => {
+            logEvent("message:deleted", payload);
           });
         });
 
@@ -216,7 +356,7 @@
             body: els.body.value.trim(),
           };
           socket.emit("message:send", payload, (ack) => {
-            log("ack -> " + JSON.stringify(ack));
+            logEvent("ack", ack);
           });
         });
 
@@ -232,6 +372,156 @@
           }
           socket.emit("conversation:join", conversationId);
           log("joined conversation: " + conversationId);
+        });
+
+        els.listConversations.addEventListener("click", async () => {
+          try {
+            const result = await apiRequest("/messages/conversations?search=&status=all");
+            logEvent("list conversations", result);
+          } catch (err) {
+            log("list conversations error -> " + err);
+          }
+        });
+
+        els.listMessages.addEventListener("click", async () => {
+          const conversationId = els.conversation.value.trim();
+          if (!conversationId) {
+            alert("Enter a conversation ID.");
+            return;
+          }
+          try {
+            const result = await apiRequest(
+              "/messages/conversations/" + conversationId + "/messages?page=1&limit=20"
+            );
+            logEvent("list messages", result);
+          } catch (err) {
+            log("list messages error -> " + err);
+          }
+        });
+
+        els.markRead.addEventListener("click", async () => {
+          const conversationId = els.conversation.value.trim();
+          if (!conversationId) {
+            alert("Enter a conversation ID.");
+            return;
+          }
+          try {
+            const result = await apiRequest(
+              "/messages/conversations/" + conversationId + "/read",
+              { method: "POST" }
+            );
+            logEvent("mark read", result);
+          } catch (err) {
+            log("mark read error -> " + err);
+          }
+        });
+
+        els.sendAttachment.addEventListener("click", async () => {
+          const recipientId = els.recipient.value.trim();
+          if (!recipientId) {
+            alert("Enter a recipient ID.");
+            return;
+          }
+          const files = Array.from(els.files.files || []);
+          const body = els.body.value.trim();
+          if (!body && files.length === 0) {
+            alert("Enter a message body or pick at least one file.");
+            return;
+          }
+          const form = new FormData();
+          form.append("recipientId", recipientId);
+          if (body) form.append("body", body);
+          files.forEach((file) => form.append("files", file));
+          try {
+            const result = await apiRequest("/messages/attachments", {
+              method: "POST",
+              body: form,
+            });
+            logEvent("send attachment", result);
+          } catch (err) {
+            log("send attachment error -> " + err);
+          }
+        });
+
+        els.updateMessage.addEventListener("click", async () => {
+          const messageId = els.messageId.value.trim();
+          const body = els.editBody.value.trim();
+          if (!messageId) {
+            alert("Enter a message ID.");
+            return;
+          }
+          if (!body) {
+            alert("Enter edited message body.");
+            return;
+          }
+          try {
+            const result = await apiRequest("/messages/" + messageId, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ body }),
+            });
+            logEvent("update message", result);
+          } catch (err) {
+            log("update message error -> " + err);
+          }
+        });
+
+        els.deleteMessage.addEventListener("click", async () => {
+          const messageId = els.messageId.value.trim();
+          if (!messageId) {
+            alert("Enter a message ID.");
+            return;
+          }
+          try {
+            const result = await apiRequest("/messages/" + messageId, {
+              method: "DELETE",
+            });
+            logEvent("delete message", result);
+          } catch (err) {
+            log("delete message error -> " + err);
+          }
+        });
+
+        els.searchUsers.addEventListener("click", async () => {
+          const query = els.search.value.trim();
+          if (!query) {
+            alert("Enter a search term.");
+            return;
+          }
+          try {
+            const result = await apiRequest("/messages/users/search?query=" + encodeURIComponent(query));
+            logEvent("search users", result);
+          } catch (err) {
+            log("search users error -> " + err);
+          }
+        });
+
+        els.blockUser.addEventListener("click", async () => {
+          const targetId = els.blockUserId.value.trim();
+          if (!targetId) {
+            alert("Enter a user ID to block.");
+            return;
+          }
+          try {
+            const result = await apiRequest("/messages/block/" + targetId, { method: "POST" });
+            logEvent("block user", result);
+          } catch (err) {
+            log("block user error -> " + err);
+          }
+        });
+
+        els.unblockUser.addEventListener("click", async () => {
+          const targetId = els.blockUserId.value.trim();
+          if (!targetId) {
+            alert("Enter a user ID to unblock.");
+            return;
+          }
+          try {
+            const result = await apiRequest("/messages/block/" + targetId, { method: "DELETE" });
+            logEvent("unblock user", result);
+          } catch (err) {
+            log("unblock user error -> " + err);
+          }
         });
       }
 

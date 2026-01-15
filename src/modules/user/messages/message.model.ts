@@ -6,6 +6,14 @@ export interface IMessage extends Document {
   recipient: mongoose.Types.ObjectId;
   body: string;
   readAt?: Date | null;
+  editedAt?: Date | null;
+  deletedAt?: Date | null;
+  attachments?: {
+    url: string;
+    mimeType: string;
+    fileName: string;
+    size: number;
+  }[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -17,6 +25,19 @@ const messageSchema = new Schema<IMessage>(
     recipient: { type: Schema.Types.ObjectId, ref: "User", required: true },
     body: { type: String, required: true, trim: true },
     readAt: { type: Date, default: null },
+    editedAt: { type: Date, default: null },
+    deletedAt: { type: Date, default: null },
+    attachments: {
+      type: [
+        {
+          url: { type: String, required: true },
+          mimeType: { type: String, required: true },
+          fileName: { type: String, required: true },
+          size: { type: Number, required: true },
+        },
+      ],
+      default: [],
+    },
   },
   { timestamps: true }
 );

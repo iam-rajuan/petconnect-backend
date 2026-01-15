@@ -18,6 +18,28 @@ export const createMessageSchema = z.object({
     .max(2000, "Message must be at most 2000 characters"),
 });
 
+export const createMessageWithAttachmentsSchema = z.object({
+  recipientId: z.string().trim().min(1, "Recipient id is required"),
+  body: z.string().trim().max(2000, "Message must be at most 2000 characters").optional(),
+});
+
+export const conversationListQuerySchema = z.object({
+  search: z.string().trim().optional(),
+  status: z.enum(["all", "read", "unread", "blocked"]).default("all"),
+});
+
+export const userSearchQuerySchema = z.object({
+  query: z.string().trim().min(1, "Search query is required"),
+});
+
+export const updateMessageSchema = z.object({
+  body: z
+    .string()
+    .trim()
+    .min(1, "Message body is required")
+    .max(2000, "Message must be at most 2000 characters"),
+});
+
 export const messageQuerySchema = z.object({
   page: z.preprocess(toNumber, z.number().int().min(1).default(1)),
   limit: z.preprocess(toNumber, z.number().int().min(1).max(100).default(20)),
@@ -25,6 +47,14 @@ export const messageQuerySchema = z.object({
 
 export const conversationIdParamSchema = z.object({
   id: z.string().trim().min(1, "Conversation id is required"),
+});
+
+export const messageIdParamSchema = z.object({
+  id: z.string().trim().min(1, "Message id is required"),
+});
+
+export const userIdParamSchema = z.object({
+  id: z.string().trim().min(1, "User id is required"),
 });
 
 export type CreateMessageInput = z.infer<typeof createMessageSchema>;

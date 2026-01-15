@@ -27,6 +27,8 @@ export interface IUser extends Document {
   resetPasswordVerifiedExpires?: Date | null;
   favorites?: string[];
   profileCompleted?: boolean;
+  blockedUsers?: mongoose.Types.ObjectId[];
+  lastSeenAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
   isPhoneVerified?: boolean;
@@ -103,9 +105,18 @@ const userSchema = new mongoose.Schema<IUser>(
       type: [String],
       default: [],
     },
+    blockedUsers: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "User",
+      default: [],
+    },
     profileCompleted: {
       type: Boolean,
       default: false,
+    },
+    lastSeenAt: {
+      type: Date,
+      default: null,
     },
     deletionRequestedAt: {
       type: Date,

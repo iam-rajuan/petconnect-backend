@@ -5,9 +5,16 @@ import validate from "../../../middlewares/validate.middleware";
 import * as messagesController from "./messages.controller";
 import {
   conversationIdParamSchema,
+  conversationListQuerySchema,
   createMessageSchema,
+  createMessageWithAttachmentsSchema,
+  messageIdParamSchema,
   messageQuerySchema,
+  updateMessageSchema,
+  userIdParamSchema,
+  userSearchQuerySchema,
 } from "./messages.validation";
+import { uploadMessageAttachments } from "../uploads/upload.middleware";
 
 const router = Router();
 
@@ -51,7 +58,11 @@ const validateQuery =
 
 router.use(auth);
 
-router.get("/conversations", messagesController.listConversations);
+router.get(
+  "/conversations",
+  validateQuery(conversationListQuerySchema),
+  messagesController.listConversations
+);
 router.get(
   "/conversations/:id/messages",
   validateParams(conversationIdParamSchema),
@@ -60,9 +71,41 @@ router.get(
 );
 router.post("/", validate(createMessageSchema), messagesController.sendMessage);
 router.post(
+  "/attachments",
+  uploadMessageAttachments,
+  validate(createMessageWithAttachmentsSchema),
+  messagesController.sendMessageWithAttachments
+);
+router.post(
   "/conversations/:id/read",
   validateParams(conversationIdParamSchema),
   messagesController.markConversationRead
+);
+router.get(
+  "/users/search",
+  validateQuery(userSearchQuerySchema),
+  messagesController.searchUsers
+);
+router.post(
+  "/block/:id",
+  validateParams(userIdParamSchema),
+  messagesController.blockUser
+);
+router.delete(
+  "/block/:id",
+  validateParams(userIdParamSchema),
+  messagesController.unblockUser
+);
+router.patch(
+  "/:id",
+  validateParams(messageIdParamSchema),
+  validate(updateMessageSchema),
+  messagesController.updateMessage
+);
+router.delete(
+  "/:id",
+  validateParams(messageIdParamSchema),
+  messagesController.deleteMessage
 );
 
 export default router;

@@ -4,6 +4,8 @@ import { verifyToken } from "../utils/jwt";
 import { createMessageSchema } from "../modules/user/messages/messages.validation";
 import * as messagesService from "../modules/user/messages/messages.service";
 import { toMessageResponse } from "../modules/user/messages/messages.mapper";
+import { markOffline, markOnline } from "./presence";
+import User from "../modules/user/users/user.model";
 
 let io: SocketServer | null = null;
 
@@ -14,6 +16,7 @@ const parseToken = (socket: Socket): string | null => {
   }
 
   const header = socket.handshake.headers?.authorization;
+  console.log("Authorization Header:", header);
   if (typeof header === "string" && header.startsWith("Bearer ")) {
     return header.slice(7);
   }
@@ -51,6 +54,7 @@ export const initSocketServer = (httpServer: HttpServer) => {
     const userId = socket.data.userId as string;
     if (userId) {
       socket.join(userId);
+      markOnline(userId);
     }
 
     socket.on("conversation:join", (conversationId: string) => {
@@ -86,6 +90,15 @@ export const initSocketServer = (httpServer: HttpServer) => {
       }
       }
     );
+
+    socket.on("disconnect", () => {
+      if (userId) {
+        const wentOffline = markOffline(userId);
+        if (wentOffline) {
+          User.updateOne({ _id: userId }, { lastSeenAt: new Date() }).catch(() => undefined);
+        }
+      }
+    });
   });
 
   return io;
@@ -104,5 +117,37 @@ export const emitNewMessage = (message: any) => {
   }
   if (payload.conversationId) {
     io.to(payload.conversationId).emit("message:new", payload);
+  }
+};
+
+export const emitMessageUpdated = (message: any) => {
+  if (!io) return;
+  const payload = toMessageResponse(message);
+  if (!payload) return;
+
+  if (payload.senderId) {
+    io.to(payload.senderId).emit("message:updated", payload);
+  }
+  if (payload.recipientId) {
+    io.to(payload.recipientId).emit("message:updated", payload);
+  }
+  if (payload.conversationId) {
+    io.to(payload.conversationId).emit("message:updated", payload);
+  }
+};
+
+export const emitMessageDeleted = (message: any) => {
+  if (!io) return;
+  const payload = toMessageResponse(message);
+  if (!payload) return;
+
+  if (payload.senderId) {
+    io.to(payload.senderId).emit("message:deleted", payload);
+  }
+  if (payload.recipientId) {
+    io.to(payload.recipientId).emit("message:deleted", payload);
+  }
+  if (payload.conversationId) {
+    io.to(payload.conversationId).emit("message:deleted", payload);
   }
 };

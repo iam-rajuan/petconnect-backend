@@ -1,0 +1,241 @@
+{
+  "info": {
+    "name": "PetConnect Messaging",
+    "_postman_id": "9f0c7a6a-3cf9-4cf2-9a92-1a8f1d1b9d9b",
+    "description": "Messaging APIs: conversations, messages, attachments, search, and block/unblock.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5191/api/v1" },
+    { "key": "accessToken", "value": "" },
+    { "key": "userId", "value": "" },
+    { "key": "recipientId", "value": "" },
+    { "key": "conversationId", "value": "" },
+    { "key": "messageId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "List Conversations",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/messages/conversations?search=&status=all",
+          "host": ["{{baseUrl}}"],
+          "path": ["messages", "conversations"],
+          "query": [
+            { "key": "search", "value": "" },
+            { "key": "status", "value": "all" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "List Conversations (Unread)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/messages/conversations?search=&status=unread",
+          "host": ["{{baseUrl}}"],
+          "path": ["messages", "conversations"],
+          "query": [
+            { "key": "search", "value": "" },
+            { "key": "status", "value": "unread" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "List Conversations (Blocked)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/messages/conversations?search=&status=blocked",
+          "host": ["{{baseUrl}}"],
+          "path": ["messages", "conversations"],
+          "query": [
+            { "key": "search", "value": "" },
+            { "key": "status", "value": "blocked" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "List Conversations (Search)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/messages/conversations?search=raj&status=all",
+          "host": ["{{baseUrl}}"],
+          "path": ["messages", "conversations"],
+          "query": [
+            { "key": "search", "value": "raj" },
+            { "key": "status", "value": "all" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "List Messages in Conversation",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/messages/conversations/{{conversationId}}/messages?page=1&limit=20",
+          "host": ["{{baseUrl}}"],
+          "path": ["messages", "conversations", "{{conversationId}}", "messages"],
+          "query": [
+            { "key": "page", "value": "1" },
+            { "key": "limit", "value": "20" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Send Message (Text)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"recipientId\": \"{{recipientId}}\",\n  \"body\": \"Hello from Postman\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/messages",
+          "host": ["{{baseUrl}}"],
+          "path": ["messages"]
+        }
+      }
+    },
+    {
+      "name": "Send Message (Attachments)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "recipientId", "value": "{{recipientId}}", "type": "text" },
+            { "key": "body", "value": "Here is a file", "type": "text" },
+            { "key": "files", "type": "file", "src": [] }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/messages/attachments",
+          "host": ["{{baseUrl}}"],
+          "path": ["messages", "attachments"]
+        }
+      }
+    },
+    {
+      "name": "Mark Conversation Read",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/messages/conversations/{{conversationId}}/read",
+          "host": ["{{baseUrl}}"],
+          "path": ["messages", "conversations", "{{conversationId}}", "read"]
+        }
+      }
+    },
+    {
+      "name": "Update Message",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"body\": \"Edited message\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/messages/{{messageId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["messages", "{{messageId}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete Message",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/messages/{{messageId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["messages", "{{messageId}}"]
+        }
+      }
+    },
+    {
+      "name": "Search Users",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/messages/users/search?query=raj",
+          "host": ["{{baseUrl}}"],
+          "path": ["messages", "users", "search"],
+          "query": [
+            { "key": "query", "value": "raj" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Block User",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/messages/block/{{userId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["messages", "block", "{{userId}}"]
+        }
+      }
+    },
+    {
+      "name": "Unblock User",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/messages/block/{{userId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["messages", "block", "{{userId}}"]
+        }
+      }
+    }
+  ]
+}

@@ -26,7 +26,7 @@ const signToken = (
 };
 
 const accessTtl: SignOptions["expiresIn"] =
-  (process.env.ACCESS_TOKEN_EXPIRES_IN as SignOptions["expiresIn"]) || "15m";
+  (process.env.ACCESS_TOKEN_EXPIRES_IN as SignOptions["expiresIn"]) || "480m";
 const refreshTtl: SignOptions["expiresIn"] =
   (process.env.REFRESH_TOKEN_EXPIRES_IN as SignOptions["expiresIn"]) || "7d";
 const setupTtl: SignOptions["expiresIn"] =

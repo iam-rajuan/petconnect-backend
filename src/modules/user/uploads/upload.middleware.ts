@@ -40,3 +40,4 @@ export const uploadPetCreateMedia = uploadImages.fields([
 ]);
 export const uploadDocument = uploadDocs.single("file");
 export const uploadPetHealthFiles = uploadDocs.array("files", 3);
+export const uploadMessageAttachments = uploadDocs.array("files", 5);

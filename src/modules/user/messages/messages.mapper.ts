@@ -1,3 +1,5 @@
+import { isUserOnline } from "../../../realtime/presence";
+
 type IdValue = string | { _id?: unknown } | { toString?: () => string };
 
 const toId = (value: IdValue | null | undefined): string | null => {
@@ -14,13 +16,18 @@ const toId = (value: IdValue | null | undefined): string | null => {
 
 export const toMessageResponse = (message: any) => {
   if (!message) return null;
+  const isDeleted = Boolean(message.deletedAt);
   return {
     id: toId(message._id) || String(message.id || ""),
     conversationId: toId(message.conversation) || "",
     senderId: toId(message.sender) || "",
     recipientId: toId(message.recipient) || "",
-    body: message.body,
+    body: isDeleted ? "" : message.body,
     readAt: message.readAt || null,
+    editedAt: message.editedAt || null,
+    deletedAt: message.deletedAt || null,
+    isDeleted,
+    attachments: isDeleted ? [] : (message.attachments || []),
     createdAt: message.createdAt,
     updatedAt: message.updatedAt,
   };
@@ -38,6 +45,7 @@ export const toConversationResponse = (conversation: any, userId: string) => {
           name: participant.name,
           avatarUrl: participant.avatarUrl,
           role: participant.role,
+          lastSeenAt: participant.lastSeenAt || null,
         };
       }
       return { id };
@@ -47,14 +55,28 @@ export const toConversationResponse = (conversation: any, userId: string) => {
   const otherParticipant =
     participants.find((participant: any) => participant.id !== userId) || null;
 
+  const lastMessage =
+    conversation.lastMessage && typeof conversation.lastMessage === "object"
+      ? toMessageResponse(conversation.lastMessage)
+      : null;
+
+  let lastMessageRead: boolean | null = null;
+  if (lastMessage) {
+    if (lastMessage.senderId === userId) {
+      lastMessageRead = Boolean(lastMessage.readAt);
+    } else if (lastMessage.recipientId === userId) {
+      lastMessageRead = Boolean(lastMessage.readAt);
+    }
+  }
+
   return {
     id: toId(conversation._id) || String(conversation.id || ""),
     participants,
-    otherParticipant,
-    lastMessage:
-      conversation.lastMessage && typeof conversation.lastMessage === "object"
-        ? toMessageResponse(conversation.lastMessage)
-        : null,
+    otherParticipant: otherParticipant
+      ? { ...otherParticipant, isOnline: isUserOnline(otherParticipant.id) }
+      : null,
+    lastMessage,
+    lastMessageRead,
     lastMessageAt: conversation.lastMessageAt || null,
     createdAt: conversation.createdAt,
     updatedAt: conversation.updatedAt,
