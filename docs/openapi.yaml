@@ -1352,6 +1352,21 @@ components:
           type: string
           format: password
           example: AdminSecret123
+    AdminResetPasswordInput:
+      type: object
+      required: [email, otp, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: admin@petconnect.com
+        otp:
+          type: string
+          example: "123456"
+        password:
+          type: string
+          format: password
+          example: NewAdminSecret123
     AdminAuthUser:
       type: object
       properties:
@@ -2471,7 +2486,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ResetPasswordInput"
+              $ref: "#/components/schemas/AdminResetPasswordInput"
       responses:
         "200":
           description: Password reset

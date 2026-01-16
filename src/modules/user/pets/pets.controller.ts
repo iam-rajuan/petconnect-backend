@@ -219,12 +219,73 @@ export const addHealthRecord = async (req: AuthRequest, res: Response) => {
       )
     );
 
+    const normalizeStatus = (value: unknown) => {
+      if (typeof value !== "string") return undefined;
+      const normalized = value.trim().toLowerCase();
+      return normalized || undefined;
+    };
+
+    const normalizeType = (value: unknown) => {
+      if (typeof value !== "string") return undefined;
+      const normalized = value.trim().toLowerCase();
+      if (!normalized) return undefined;
+      if (normalized.includes("tick")) return "tick_flea";
+      if (normalized.includes("flea")) return "tick_flea";
+      return normalized.replace(/\s+/g, "_");
+    };
+
+    const recordDetails =
+      req.body.recordDetails || {
+        recordName: req.body.recordName,
+        batchLotNo: req.body.batchNumber,
+        otherInfo: req.body.otherInfo,
+        cost: req.body.cost,
+        date: req.body.date,
+        nextDueDate: req.body.nextDueDate,
+        reminder:
+          req.body.reminderEnabled === undefined
+            ? undefined
+            : {
+                enabled: req.body.reminderEnabled,
+                offset: req.body.reminderDuration,
+              },
+      };
+
+    const veterinarian =
+      req.body.veterinarian || {
+        designation: req.body.vetDesignation,
+        name: req.body.vetName,
+        clinicName: req.body.clinicName,
+        licenseNo: req.body.licenseNumber,
+        contact: req.body.vetContact,
+      };
+
+    const vitalSigns =
+      req.body.vitalSigns || {
+        weight: req.body.weight,
+        weightStatus: normalizeStatus(req.body.weightStatus),
+        temperature: req.body.temperature,
+        temperatureStatus: normalizeStatus(req.body.temperatureStatus),
+        heartRate: req.body.heartRate,
+        heartRateStatus: normalizeStatus(req.body.heartRateStatus),
+        respiratory: req.body.respiratoryRate,
+        respiratoryRate: req.body.respiratoryRate,
+        respiratoryRateStatus: normalizeStatus(req.body.respiratoryRateStatus),
+        status: normalizeStatus(req.body.status),
+      };
+
+    const observation =
+      req.body.observation || {
+        lookupObservations: req.body.observations || [],
+        clinicalNotes: req.body.clinicalNotes,
+      };
+
     const record = {
-      type: req.body.type,
-      recordDetails: req.body.recordDetails,
-      veterinarian: req.body.veterinarian,
-      vitalSigns: req.body.vitalSigns,
-      observation: req.body.observation,
+      type: req.body.type || normalizeType(req.body.recordType),
+      recordDetails,
+      veterinarian,
+      vitalSigns,
+      observation,
       attachments: uploads.map((item) => item.url),
     };
 

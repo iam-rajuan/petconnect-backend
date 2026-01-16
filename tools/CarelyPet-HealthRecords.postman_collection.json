@@ -114,23 +114,123 @@
 							"mode": "formdata",
 							"formdata": [
 								{
-									"key": "recordDetails",
-									"value": "{\"recordName\":\"Rabies Shot\",\"batchLotNo\":\"RB-2025-01\",\"otherInfo\":\"First dose\",\"cost\":\"25.00\",\"date\":\"2026-01-15\",\"nextDueDate\":\"2026-07-15\",\"reminder\":{\"enabled\":true,\"offset\":\"1_week\"}}",
+									"key": "recordType",
+									"value": "Vaccination",
 									"type": "text"
 								},
 								{
-									"key": "veterinarian",
-									"value": "{\"designation\":\"DVM\",\"name\":\"Dr Smith\",\"clinicName\":\"Carely Vet\",\"licenseNo\":\"LIC-123\",\"contact\":\"+1 555 0000\"}",
+									"key": "recordName",
+									"value": "Rabies Shot",
 									"type": "text"
 								},
 								{
-									"key": "vitalSigns",
-									"value": "{\"weight\":\"15 lb\",\"temperature\":\"101 F\",\"heartRate\":\"90 bpm\",\"respiratory\":\"22 rpm\",\"status\":\"normal\"}",
+									"key": "batchNumber",
+									"value": "RB-2025-01",
 									"type": "text"
 								},
 								{
-									"key": "observation",
-									"value": "{\"lookupObservations\":[\"Monitor appetite\",\"Check vitals weekly\"],\"clinicalNotes\":\"No adverse reactions observed.\"}",
+									"key": "otherInfo",
+									"value": "First dose",
+									"type": "text"
+								},
+								{
+									"key": "cost",
+									"value": "25.00",
+									"type": "text"
+								},
+								{
+									"key": "date",
+									"value": "01/15/2026",
+									"type": "text"
+								},
+								{
+									"key": "nextDueDate",
+									"value": "07/15/2026",
+									"type": "text"
+								},
+								{
+									"key": "reminderEnabled",
+									"value": "true",
+									"type": "text"
+								},
+								{
+									"key": "reminderDuration",
+									"value": "1 week",
+									"type": "text"
+								},
+								{
+									"key": "vetDesignation",
+									"value": "DVM",
+									"type": "text"
+								},
+								{
+									"key": "vetName",
+									"value": "Dr Smith",
+									"type": "text"
+								},
+								{
+									"key": "clinicName",
+									"value": "Carely Vet",
+									"type": "text"
+								},
+								{
+									"key": "licenseNumber",
+									"value": "LIC-123",
+									"type": "text"
+								},
+								{
+									"key": "vetContact",
+									"value": "+1 555 0000",
+									"type": "text"
+								},
+								{
+									"key": "weight",
+									"value": "15",
+									"type": "text"
+								},
+								{
+									"key": "weightStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "temperature",
+									"value": "101",
+									"type": "text"
+								},
+								{
+									"key": "temperatureStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "heartRate",
+									"value": "90",
+									"type": "text"
+								},
+								{
+									"key": "heartRateStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "respiratoryRate",
+									"value": "22",
+									"type": "text"
+								},
+								{
+									"key": "respiratoryRateStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "observations",
+									"value": "[\"Monitor appetite\",\"Check vitals weekly\"]",
+									"type": "text"
+								},
+								{
+									"key": "clinicalNotes",
+									"value": "No adverse reactions observed.",
 									"type": "text"
 								},
 								{
@@ -173,23 +273,123 @@
 							"mode": "formdata",
 							"formdata": [
 								{
-									"key": "recordDetails",
-									"value": "{\"recordName\":\"Routine Checkup\",\"batchLotNo\":\"CHK-2025-01\",\"otherInfo\":\"Annual check\",\"cost\":\"30.00\",\"date\":\"2026-02-01\",\"nextDueDate\":\"2027-02-01\",\"reminder\":{\"enabled\":true,\"offset\":\"1_week\"}}",
+									"key": "recordType",
+									"value": "Checkup",
 									"type": "text"
 								},
 								{
-									"key": "veterinarian",
-									"value": "{\"designation\":\"DVM\",\"name\":\"Dr Lee\",\"clinicName\":\"Carely Vet\",\"licenseNo\":\"LIC-456\",\"contact\":\"+1 555 0000\"}",
+									"key": "recordName",
+									"value": "Routine Checkup",
 									"type": "text"
 								},
 								{
-									"key": "vitalSigns",
-									"value": "{\"weight\":\"15 lb\",\"temperature\":\"101 F\",\"heartRate\":\"90 bpm\",\"respiratory\":\"22 rpm\",\"status\":\"normal\"}",
+									"key": "batchNumber",
+									"value": "CHK-2025-01",
 									"type": "text"
 								},
 								{
-									"key": "observation",
-									"value": "{\"lookupObservations\":[\"Good appetite\"],\"clinicalNotes\":\"Healthy overall.\"}",
+									"key": "otherInfo",
+									"value": "Annual check",
+									"type": "text"
+								},
+								{
+									"key": "cost",
+									"value": "30.00",
+									"type": "text"
+								},
+								{
+									"key": "date",
+									"value": "02/01/2026",
+									"type": "text"
+								},
+								{
+									"key": "nextDueDate",
+									"value": "02/01/2027",
+									"type": "text"
+								},
+								{
+									"key": "reminderEnabled",
+									"value": "true",
+									"type": "text"
+								},
+								{
+									"key": "reminderDuration",
+									"value": "1 week",
+									"type": "text"
+								},
+								{
+									"key": "vetDesignation",
+									"value": "DVM",
+									"type": "text"
+								},
+								{
+									"key": "vetName",
+									"value": "Dr Lee",
+									"type": "text"
+								},
+								{
+									"key": "clinicName",
+									"value": "Carely Vet",
+									"type": "text"
+								},
+								{
+									"key": "licenseNumber",
+									"value": "LIC-456",
+									"type": "text"
+								},
+								{
+									"key": "vetContact",
+									"value": "+1 555 0000",
+									"type": "text"
+								},
+								{
+									"key": "weight",
+									"value": "15",
+									"type": "text"
+								},
+								{
+									"key": "weightStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "temperature",
+									"value": "101",
+									"type": "text"
+								},
+								{
+									"key": "temperatureStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "heartRate",
+									"value": "90",
+									"type": "text"
+								},
+								{
+									"key": "heartRateStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "respiratoryRate",
+									"value": "22",
+									"type": "text"
+								},
+								{
+									"key": "respiratoryRateStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "observations",
+									"value": "[\"Good appetite\"]",
+									"type": "text"
+								},
+								{
+									"key": "clinicalNotes",
+									"value": "Healthy overall.",
 									"type": "text"
 								},
 								{
@@ -232,23 +432,123 @@
 							"mode": "formdata",
 							"formdata": [
 								{
-									"key": "recordDetails",
-									"value": "{\"recordName\":\"Antibiotic Course\",\"batchLotNo\":\"MED-2025-01\",\"otherInfo\":\"7-day course\",\"cost\":\"40.00\",\"date\":\"2026-02-10\",\"nextDueDate\":\"2026-02-17\",\"reminder\":{\"enabled\":true,\"offset\":\"3_days\"}}",
+									"key": "recordType",
+									"value": "Medication",
 									"type": "text"
 								},
 								{
-									"key": "veterinarian",
-									"value": "{\"designation\":\"DVM\",\"name\":\"Dr Patel\",\"clinicName\":\"Carely Vet\",\"licenseNo\":\"LIC-789\",\"contact\":\"+1 555 0000\"}",
+									"key": "recordName",
+									"value": "Antibiotic Course",
 									"type": "text"
 								},
 								{
-									"key": "vitalSigns",
-									"value": "{\"weight\":\"15 lb\",\"temperature\":\"101 F\",\"heartRate\":\"90 bpm\",\"respiratory\":\"22 rpm\",\"status\":\"normal\"}",
+									"key": "batchNumber",
+									"value": "MED-2025-01",
 									"type": "text"
 								},
 								{
-									"key": "observation",
-									"value": "{\"lookupObservations\":[\"Monitor appetite\"],\"clinicalNotes\":\"Tolerating medication well.\"}",
+									"key": "otherInfo",
+									"value": "7-day course",
+									"type": "text"
+								},
+								{
+									"key": "cost",
+									"value": "40.00",
+									"type": "text"
+								},
+								{
+									"key": "date",
+									"value": "02/10/2026",
+									"type": "text"
+								},
+								{
+									"key": "nextDueDate",
+									"value": "02/17/2026",
+									"type": "text"
+								},
+								{
+									"key": "reminderEnabled",
+									"value": "true",
+									"type": "text"
+								},
+								{
+									"key": "reminderDuration",
+									"value": "3 days",
+									"type": "text"
+								},
+								{
+									"key": "vetDesignation",
+									"value": "DVM",
+									"type": "text"
+								},
+								{
+									"key": "vetName",
+									"value": "Dr Patel",
+									"type": "text"
+								},
+								{
+									"key": "clinicName",
+									"value": "Carely Vet",
+									"type": "text"
+								},
+								{
+									"key": "licenseNumber",
+									"value": "LIC-789",
+									"type": "text"
+								},
+								{
+									"key": "vetContact",
+									"value": "+1 555 0000",
+									"type": "text"
+								},
+								{
+									"key": "weight",
+									"value": "15",
+									"type": "text"
+								},
+								{
+									"key": "weightStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "temperature",
+									"value": "101",
+									"type": "text"
+								},
+								{
+									"key": "temperatureStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "heartRate",
+									"value": "90",
+									"type": "text"
+								},
+								{
+									"key": "heartRateStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "respiratoryRate",
+									"value": "22",
+									"type": "text"
+								},
+								{
+									"key": "respiratoryRateStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "observations",
+									"value": "[\"Monitor appetite\"]",
+									"type": "text"
+								},
+								{
+									"key": "clinicalNotes",
+									"value": "Tolerating medication well.",
 									"type": "text"
 								},
 								{
@@ -291,23 +591,123 @@
 							"mode": "formdata",
 							"formdata": [
 								{
-									"key": "recordDetails",
-									"value": "{\"recordName\":\"Flea Treatment\",\"batchLotNo\":\"TF-2025-01\",\"otherInfo\":\"Monthly spot-on\",\"cost\":\"18.00\",\"date\":\"2026-03-01\",\"nextDueDate\":\"2026-04-01\",\"reminder\":{\"enabled\":true,\"offset\":\"1_week\"}}",
+									"key": "recordType",
+									"value": "Tick & Flea",
 									"type": "text"
 								},
 								{
-									"key": "veterinarian",
-									"value": "{\"designation\":\"DVM\",\"name\":\"Dr Khan\",\"clinicName\":\"Carely Vet\",\"licenseNo\":\"LIC-234\",\"contact\":\"+1 555 0000\"}",
+									"key": "recordName",
+									"value": "Flea Treatment",
 									"type": "text"
 								},
 								{
-									"key": "vitalSigns",
-									"value": "{\"weight\":\"15 lb\",\"temperature\":\"101 F\",\"heartRate\":\"90 bpm\",\"respiratory\":\"22 rpm\",\"status\":\"normal\"}",
+									"key": "batchNumber",
+									"value": "TF-2025-01",
 									"type": "text"
 								},
 								{
-									"key": "observation",
-									"value": "{\"lookupObservations\":[\"Check skin\"],\"clinicalNotes\":\"No irritation observed.\"}",
+									"key": "otherInfo",
+									"value": "Monthly spot-on",
+									"type": "text"
+								},
+								{
+									"key": "cost",
+									"value": "18.00",
+									"type": "text"
+								},
+								{
+									"key": "date",
+									"value": "03/01/2026",
+									"type": "text"
+								},
+								{
+									"key": "nextDueDate",
+									"value": "04/01/2026",
+									"type": "text"
+								},
+								{
+									"key": "reminderEnabled",
+									"value": "true",
+									"type": "text"
+								},
+								{
+									"key": "reminderDuration",
+									"value": "1 week",
+									"type": "text"
+								},
+								{
+									"key": "vetDesignation",
+									"value": "DVM",
+									"type": "text"
+								},
+								{
+									"key": "vetName",
+									"value": "Dr Khan",
+									"type": "text"
+								},
+								{
+									"key": "clinicName",
+									"value": "Carely Vet",
+									"type": "text"
+								},
+								{
+									"key": "licenseNumber",
+									"value": "LIC-234",
+									"type": "text"
+								},
+								{
+									"key": "vetContact",
+									"value": "+1 555 0000",
+									"type": "text"
+								},
+								{
+									"key": "weight",
+									"value": "15",
+									"type": "text"
+								},
+								{
+									"key": "weightStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "temperature",
+									"value": "101",
+									"type": "text"
+								},
+								{
+									"key": "temperatureStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "heartRate",
+									"value": "90",
+									"type": "text"
+								},
+								{
+									"key": "heartRateStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "respiratoryRate",
+									"value": "22",
+									"type": "text"
+								},
+								{
+									"key": "respiratoryRateStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "observations",
+									"value": "[\"Check skin\"]",
+									"type": "text"
+								},
+								{
+									"key": "clinicalNotes",
+									"value": "No irritation observed.",
 									"type": "text"
 								},
 								{
@@ -350,23 +750,123 @@
 							"mode": "formdata",
 							"formdata": [
 								{
-									"key": "recordDetails",
-									"value": "{\"recordName\":\"Neuter\",\"batchLotNo\":\"SUR-2025-01\",\"otherInfo\":\"Post-op meds prescribed\",\"cost\":\"120.00\",\"date\":\"2026-03-15\",\"nextDueDate\":\"2026-03-29\",\"reminder\":{\"enabled\":true,\"offset\":\"3_days\"}}",
+									"key": "recordType",
+									"value": "Surgery",
 									"type": "text"
 								},
 								{
-									"key": "veterinarian",
-									"value": "{\"designation\":\"DVM\",\"name\":\"Dr Adams\",\"clinicName\":\"Carely Vet\",\"licenseNo\":\"LIC-567\",\"contact\":\"+1 555 0000\"}",
+									"key": "recordName",
+									"value": "Neuter",
 									"type": "text"
 								},
 								{
-									"key": "vitalSigns",
-									"value": "{\"weight\":\"15 lb\",\"temperature\":\"101 F\",\"heartRate\":\"90 bpm\",\"respiratory\":\"22 rpm\",\"status\":\"normal\"}",
+									"key": "batchNumber",
+									"value": "SUR-2025-01",
 									"type": "text"
 								},
 								{
-									"key": "observation",
-									"value": "{\"lookupObservations\":[\"Monitor incision\"],\"clinicalNotes\":\"Recovery progressing.\"}",
+									"key": "otherInfo",
+									"value": "Post-op meds prescribed",
+									"type": "text"
+								},
+								{
+									"key": "cost",
+									"value": "120.00",
+									"type": "text"
+								},
+								{
+									"key": "date",
+									"value": "03/15/2026",
+									"type": "text"
+								},
+								{
+									"key": "nextDueDate",
+									"value": "03/29/2026",
+									"type": "text"
+								},
+								{
+									"key": "reminderEnabled",
+									"value": "true",
+									"type": "text"
+								},
+								{
+									"key": "reminderDuration",
+									"value": "3 days",
+									"type": "text"
+								},
+								{
+									"key": "vetDesignation",
+									"value": "DVM",
+									"type": "text"
+								},
+								{
+									"key": "vetName",
+									"value": "Dr Adams",
+									"type": "text"
+								},
+								{
+									"key": "clinicName",
+									"value": "Carely Vet",
+									"type": "text"
+								},
+								{
+									"key": "licenseNumber",
+									"value": "LIC-567",
+									"type": "text"
+								},
+								{
+									"key": "vetContact",
+									"value": "+1 555 0000",
+									"type": "text"
+								},
+								{
+									"key": "weight",
+									"value": "15",
+									"type": "text"
+								},
+								{
+									"key": "weightStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "temperature",
+									"value": "101",
+									"type": "text"
+								},
+								{
+									"key": "temperatureStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "heartRate",
+									"value": "90",
+									"type": "text"
+								},
+								{
+									"key": "heartRateStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "respiratoryRate",
+									"value": "22",
+									"type": "text"
+								},
+								{
+									"key": "respiratoryRateStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "observations",
+									"value": "[\"Monitor incision\"]",
+									"type": "text"
+								},
+								{
+									"key": "clinicalNotes",
+									"value": "Recovery progressing.",
 									"type": "text"
 								},
 								{
@@ -409,23 +909,123 @@
 							"mode": "formdata",
 							"formdata": [
 								{
-									"key": "recordDetails",
-									"value": "{\"recordName\":\"Dental Cleaning\",\"batchLotNo\":\"DEN-2025-01\",\"otherInfo\":\"Mild tartar removal\",\"cost\":\"60.00\",\"date\":\"2026-04-01\",\"nextDueDate\":\"2027-04-01\",\"reminder\":{\"enabled\":true,\"offset\":\"1_month\"}}",
+									"key": "recordType",
+									"value": "Dental",
 									"type": "text"
 								},
 								{
-									"key": "veterinarian",
-									"value": "{\"designation\":\"DVM\",\"name\":\"Dr Wilson\",\"clinicName\":\"Carely Vet\",\"licenseNo\":\"LIC-890\",\"contact\":\"+1 555 0000\"}",
+									"key": "recordName",
+									"value": "Dental Cleaning",
 									"type": "text"
 								},
 								{
-									"key": "vitalSigns",
-									"value": "{\"weight\":\"15 lb\",\"temperature\":\"101 F\",\"heartRate\":\"90 bpm\",\"respiratory\":\"22 rpm\",\"status\":\"normal\"}",
+									"key": "batchNumber",
+									"value": "DEN-2025-01",
 									"type": "text"
 								},
 								{
-									"key": "observation",
-									"value": "{\"lookupObservations\":[\"Monitor gums\"],\"clinicalNotes\":\"Teeth cleaned successfully.\"}",
+									"key": "otherInfo",
+									"value": "Mild tartar removal",
+									"type": "text"
+								},
+								{
+									"key": "cost",
+									"value": "60.00",
+									"type": "text"
+								},
+								{
+									"key": "date",
+									"value": "04/01/2026",
+									"type": "text"
+								},
+								{
+									"key": "nextDueDate",
+									"value": "04/01/2027",
+									"type": "text"
+								},
+								{
+									"key": "reminderEnabled",
+									"value": "true",
+									"type": "text"
+								},
+								{
+									"key": "reminderDuration",
+									"value": "1 month",
+									"type": "text"
+								},
+								{
+									"key": "vetDesignation",
+									"value": "DVM",
+									"type": "text"
+								},
+								{
+									"key": "vetName",
+									"value": "Dr Wilson",
+									"type": "text"
+								},
+								{
+									"key": "clinicName",
+									"value": "Carely Vet",
+									"type": "text"
+								},
+								{
+									"key": "licenseNumber",
+									"value": "LIC-890",
+									"type": "text"
+								},
+								{
+									"key": "vetContact",
+									"value": "+1 555 0000",
+									"type": "text"
+								},
+								{
+									"key": "weight",
+									"value": "15",
+									"type": "text"
+								},
+								{
+									"key": "weightStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "temperature",
+									"value": "101",
+									"type": "text"
+								},
+								{
+									"key": "temperatureStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "heartRate",
+									"value": "90",
+									"type": "text"
+								},
+								{
+									"key": "heartRateStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "respiratoryRate",
+									"value": "22",
+									"type": "text"
+								},
+								{
+									"key": "respiratoryRateStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "observations",
+									"value": "[\"Monitor gums\"]",
+									"type": "text"
+								},
+								{
+									"key": "clinicalNotes",
+									"value": "Teeth cleaned successfully.",
 									"type": "text"
 								},
 								{
@@ -468,23 +1068,123 @@
 							"mode": "formdata",
 							"formdata": [
 								{
-									"key": "recordDetails",
-									"value": "{\"recordName\":\"Other Note\",\"batchLotNo\":\"OTH-2025-01\",\"otherInfo\":\"General note\",\"cost\":\"0.00\",\"date\":\"2026-04-10\",\"nextDueDate\":\"2026-05-10\",\"reminder\":{\"enabled\":false,\"offset\":\"\"}}",
+									"key": "recordType",
+									"value": "Other",
 									"type": "text"
 								},
 								{
-									"key": "veterinarian",
-									"value": "{\"designation\":\"DVM\",\"name\":\"Dr Green\",\"clinicName\":\"Carely Vet\",\"licenseNo\":\"LIC-321\",\"contact\":\"+1 555 0000\"}",
+									"key": "recordName",
+									"value": "Other Note",
 									"type": "text"
 								},
 								{
-									"key": "vitalSigns",
-									"value": "{\"weight\":\"15 lb\",\"temperature\":\"101 F\",\"heartRate\":\"90 bpm\",\"respiratory\":\"22 rpm\",\"status\":\"normal\"}",
+									"key": "batchNumber",
+									"value": "OTH-2025-01",
 									"type": "text"
 								},
 								{
-									"key": "observation",
-									"value": "{\"lookupObservations\":[\"Note symptom\"],\"clinicalNotes\":\"Additional info.\"}",
+									"key": "otherInfo",
+									"value": "General note",
+									"type": "text"
+								},
+								{
+									"key": "cost",
+									"value": "0.00",
+									"type": "text"
+								},
+								{
+									"key": "date",
+									"value": "04/10/2026",
+									"type": "text"
+								},
+								{
+									"key": "nextDueDate",
+									"value": "05/10/2026",
+									"type": "text"
+								},
+								{
+									"key": "reminderEnabled",
+									"value": "false",
+									"type": "text"
+								},
+								{
+									"key": "reminderDuration",
+									"value": "1 week",
+									"type": "text"
+								},
+								{
+									"key": "vetDesignation",
+									"value": "DVM",
+									"type": "text"
+								},
+								{
+									"key": "vetName",
+									"value": "Dr Green",
+									"type": "text"
+								},
+								{
+									"key": "clinicName",
+									"value": "Carely Vet",
+									"type": "text"
+								},
+								{
+									"key": "licenseNumber",
+									"value": "LIC-321",
+									"type": "text"
+								},
+								{
+									"key": "vetContact",
+									"value": "+1 555 0000",
+									"type": "text"
+								},
+								{
+									"key": "weight",
+									"value": "15",
+									"type": "text"
+								},
+								{
+									"key": "weightStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "temperature",
+									"value": "101",
+									"type": "text"
+								},
+								{
+									"key": "temperatureStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "heartRate",
+									"value": "90",
+									"type": "text"
+								},
+								{
+									"key": "heartRateStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "respiratoryRate",
+									"value": "22",
+									"type": "text"
+								},
+								{
+									"key": "respiratoryRateStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "observations",
+									"value": "[\"Note symptom\"]",
+									"type": "text"
+								},
+								{
+									"key": "clinicalNotes",
+									"value": "Additional info.",
 									"type": "text"
 								},
 								{

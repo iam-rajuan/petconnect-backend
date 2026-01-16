@@ -112,11 +112,24 @@ const veterinarianSchema = z.object({
   contact: z.string().trim().optional(),
 });
 
+const statusSchema = z.preprocess((value) => {
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    return normalized;
+  }
+  return value;
+}, z.enum(["normal", "high", "low"]).optional());
+
 const vitalSignsSchema = z.object({
   weight: z.string().trim().optional(),
+  weightStatus: statusSchema,
   temperature: z.string().trim().optional(),
+  temperatureStatus: statusSchema,
   heartRate: z.string().trim().optional(),
+  heartRateStatus: statusSchema,
   respiratory: z.string().trim().optional(),
+  respiratoryRate: z.string().trim().optional(),
+  respiratoryRateStatus: statusSchema,
   status: z.enum(["normal", "high", "low"]).optional(),
 });
 
@@ -126,26 +139,82 @@ const observationSchema = z.object({
 });
 
 const baseHealthRecordSchema = {
-  recordDetails: jsonSchema(recordDetailsSchema),
-  veterinarian: jsonSchema(veterinarianSchema),
-  vitalSigns: jsonSchema(vitalSignsSchema),
-  observation: jsonSchema(observationSchema),
+  recordDetails: jsonSchema(recordDetailsSchema).optional(),
+  veterinarian: jsonSchema(veterinarianSchema).optional(),
+  vitalSigns: jsonSchema(vitalSignsSchema).optional(),
+  observation: jsonSchema(observationSchema).optional(),
 };
 
-const requireFullHealthRecord = (
-  value: {
-    recordDetails?: z.infer<typeof recordDetailsSchema>;
-    veterinarian?: z.infer<typeof veterinarianSchema>;
-    vitalSigns?: z.infer<typeof vitalSignsSchema>;
-    observation?: z.infer<typeof observationSchema>;
-  },
-  ctx: z.RefinementCtx
-) => {
+const flatHealthRecordSchema = {
+  recordType: z.string().trim().optional(),
+  recordName: z.string().trim().optional(),
+  batchNumber: z.string().trim().optional(),
+  otherInfo: z.string().trim().optional(),
+  cost: z.string().trim().optional(),
+  date: z.string().trim().optional(),
+  nextDueDate: z.string().trim().optional(),
+  reminderEnabled: yesNoBooleanSchema.optional(),
+  reminderDuration: z.string().trim().optional(),
+  vetDesignation: z.string().trim().optional(),
+  vetName: z.string().trim().optional(),
+  clinicName: z.string().trim().optional(),
+  licenseNumber: z.string().trim().optional(),
+  vetContact: z.string().trim().optional(),
+  weight: z.string().trim().optional(),
+  weightStatus: statusSchema,
+  temperature: z.string().trim().optional(),
+  temperatureStatus: statusSchema,
+  heartRate: z.string().trim().optional(),
+  heartRateStatus: statusSchema,
+  respiratoryRate: z.string().trim().optional(),
+  respiratoryRateStatus: statusSchema,
+  observations: stringArraySchema.optional(),
+  clinicalNotes: z.string().trim().optional(),
+};
+
+const normalizeRecordType = (value: unknown): HealthRecordType | undefined => {
+  if (typeof value !== "string") return undefined;
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) return undefined;
+  if (normalized.includes("tick")) return "tick_flea";
+  if (normalized.includes("flea")) return "tick_flea";
+  return normalized.replace(/\s+/g, "_") as HealthRecordType;
+};
+
+const requireFullHealthRecord = (value: any, ctx: z.RefinementCtx) => {
   const details = (value.recordDetails || {}) as z.infer<typeof recordDetailsSchema>;
   const vet = (value.veterinarian || {}) as z.infer<typeof veterinarianSchema>;
   const vitals = (value.vitalSigns || {}) as z.infer<typeof vitalSignsSchema>;
   const obs = (value.observation || {}) as z.infer<typeof observationSchema>;
   const reminder = details.reminder as { enabled?: boolean; offset?: string } | undefined;
+
+  const batchLotNo = value.batchNumber || details.batchLotNo || "";
+  const otherInfo = value.otherInfo || details.otherInfo || "";
+  const cost = value.cost || details.cost || "";
+  const date = value.date || details.date || "";
+  const nextDueDate = value.nextDueDate || details.nextDueDate || "";
+  const reminderEnabled =
+    value.reminderEnabled !== undefined ? value.reminderEnabled : reminder?.enabled;
+  const reminderDuration = value.reminderDuration || reminder?.offset || "";
+
+  const designation = value.vetDesignation || vet.designation || "";
+  const vetName = value.vetName || vet.name || "";
+  const clinicName = value.clinicName || vet.clinicName || "";
+  const licenseNumber = value.licenseNumber || vet.licenseNo || "";
+  const vetContact = value.vetContact || vet.contact || "";
+
+  const weight = value.weight || vitals.weight || "";
+  const temperature = value.temperature || vitals.temperature || "";
+  const heartRate = value.heartRate || vitals.heartRate || "";
+  const respiratoryRate = value.respiratoryRate || vitals.respiratoryRate || vitals.respiratory || "";
+  const weightStatus = value.weightStatus || vitals.weightStatus || "";
+  const temperatureStatus = value.temperatureStatus || vitals.temperatureStatus || "";
+  const heartRateStatus = value.heartRateStatus || vitals.heartRateStatus || "";
+  const respiratoryRateStatus =
+    value.respiratoryRateStatus || vitals.respiratoryRateStatus || "";
+
+  const observations = value.observations || obs.lookupObservations || [];
+  const clinicalNotes = value.clinicalNotes || obs.clinicalNotes || "";
 
   const requireText = (field: string, message: string) => {
     if (!field.trim()) {
@@ -153,37 +222,45 @@ const requireFullHealthRecord = (
     }
   };
 
-  requireText(details.batchLotNo || "", "Batch/Lot No. is required");
-  requireText(details.otherInfo || "", "Other info is required");
-  requireText(details.cost || "", "Cost is required");
-  requireText(details.date || "", "Date is required");
-  requireText(details.nextDueDate || "", "Next due date is required");
+  requireText(String(value.recordName || details.recordName || ""), "Record name is required");
+  requireText(batchLotNo, "Batch/Lot No. is required");
+  requireText(otherInfo, "Other info is required");
+  requireText(cost, "Cost is required");
+  requireText(date, "Date is required");
+  requireText(nextDueDate, "Next due date is required");
 
-  if (details.reminder === undefined) {
+  if (reminderEnabled === undefined) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Reminder is required" });
-  } else if (reminder?.enabled && !reminder.offset?.trim()) {
+  } else if (reminderEnabled && !reminderDuration.trim()) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Reminder offset is required" });
   }
 
-  requireText(vet.designation || "", "Designation is required");
-  requireText(vet.name || "", "Veterinarian name is required");
-  requireText(vet.clinicName || "", "Clinic name is required");
-  requireText(vet.licenseNo || "", "License no. is required");
-  requireText(vet.contact || "", "Contact is required");
+  requireText(designation, "Designation is required");
+  requireText(vetName, "Veterinarian name is required");
+  requireText(clinicName, "Clinic name is required");
+  requireText(licenseNumber, "License no. is required");
+  requireText(vetContact, "Contact is required");
 
-  requireText(vitals.weight || "", "Weight is required");
-  requireText(vitals.temperature || "", "Temperature is required");
-  requireText(vitals.heartRate || "", "Heart rate is required");
-  requireText(vitals.respiratory || "", "Respiratory rate is required");
-  if (!vitals.status) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Vital status is required" });
-  }
+  requireText(weight, "Weight is required");
+  requireText(temperature, "Temperature is required");
+  requireText(heartRate, "Heart rate is required");
+  requireText(respiratoryRate, "Respiratory rate is required");
+  requireText(String(weightStatus || ""), "Weight status is required");
+  requireText(String(temperatureStatus || ""), "Temperature status is required");
+  requireText(String(heartRateStatus || ""), "Heart rate status is required");
+  requireText(String(respiratoryRateStatus || ""), "Respiratory rate status is required");
 
-  const observations = obs.lookupObservations || [];
   if (!Array.isArray(observations) || observations.length === 0) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Observation is required" });
   }
-  requireText(obs.clinicalNotes || "", "Clinical notes are required");
+  requireText(clinicalNotes, "Clinical notes are required");
+};
+
+const requireRecordName = (value: any, ctx: z.RefinementCtx) => {
+  const name = value.recordName || value.recordDetails?.recordName || "";
+  if (!String(name).trim()) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Record name is required" });
+  }
 };
 
 const createTypedHealthRecordSchema = (type: HealthRecordType, requireFull: boolean) =>
@@ -191,8 +268,11 @@ const createTypedHealthRecordSchema = (type: HealthRecordType, requireFull: bool
     .object({
       type: z.literal(type).optional().default(type),
       ...baseHealthRecordSchema,
+      ...flatHealthRecordSchema,
     })
+    .passthrough()
     .superRefine((value, ctx) => {
+      requireRecordName(value, ctx);
       if (!requireFull) return;
       requireFullHealthRecord(value, ctx);
     });
@@ -254,11 +334,19 @@ export const petHealthRecordParamSchema = z.object({
 
 export const createHealthRecordSchema = z
   .object({
-    type: healthRecordTypeSchema,
+    type: healthRecordTypeSchema.optional(),
     ...baseHealthRecordSchema,
+    ...flatHealthRecordSchema,
   })
+  .passthrough()
   .superRefine((value, ctx) => {
-    if (value.type !== "vaccination" && value.type !== "checkup") return;
+    const type = normalizeRecordType(value.type || value.recordType);
+    if (!type) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Record type is required" });
+      return;
+    }
+    requireRecordName(value, ctx);
+    if (type !== "vaccination" && type !== "checkup") return;
     requireFullHealthRecord(value, ctx);
   });
 

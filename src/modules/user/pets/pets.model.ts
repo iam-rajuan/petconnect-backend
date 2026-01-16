@@ -38,9 +38,14 @@ export interface IHealthRecord {
   };
   vitalSigns: {
     weight?: string;
+    weightStatus?: "normal" | "high" | "low";
     temperature?: string;
+    temperatureStatus?: "normal" | "high" | "low";
     heartRate?: string;
+    heartRateStatus?: "normal" | "high" | "low";
     respiratory?: string;
+    respiratoryRate?: string;
+    respiratoryRateStatus?: "normal" | "high" | "low";
     status?: "normal" | "high" | "low";
   };
   observation: {
@@ -115,9 +120,18 @@ const healthRecordSchema = new Schema<IHealthRecord>({
   },
   vitalSigns: {
     weight: { type: String, default: "" },
+    weightStatus: { type: String, enum: ["normal", "high", "low"], default: undefined },
     temperature: { type: String, default: "" },
+    temperatureStatus: { type: String, enum: ["normal", "high", "low"], default: undefined },
     heartRate: { type: String, default: "" },
+    heartRateStatus: { type: String, enum: ["normal", "high", "low"], default: undefined },
     respiratory: { type: String, default: "" },
+    respiratoryRate: { type: String, default: "" },
+    respiratoryRateStatus: {
+      type: String,
+      enum: ["normal", "high", "low"],
+      default: undefined,
+    },
     status: { type: String, enum: ["normal", "high", "low"], default: "normal" },
   },
   observation: {

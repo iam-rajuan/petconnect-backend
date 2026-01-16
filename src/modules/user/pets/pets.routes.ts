@@ -18,7 +18,11 @@ import {
 } from "./pets.validation";
 import * as petsController from "./pets.controller";
 import { ZodError, ZodSchema } from "zod";
-import { uploadPetCreateMedia, uploadPetHealthFiles } from "../uploads/upload.middleware";
+import {
+  uploadPetCreateMedia,
+  uploadPetHealthFiles,
+  uploadPetHealthRecord,
+} from "../uploads/upload.middleware";
 
 const router = Router();
 
@@ -63,12 +67,8 @@ const validateQuery =
     next();
   };
 
-const maybeUploadHealthFiles = (req: Request, res: Response, next: NextFunction) => {
-  if (req.is("multipart/form-data")) {
-    return uploadPetHealthFiles(req, res, next);
-  }
-  return next();
-};
+const maybeUploadHealthFiles = (req: Request, res: Response, next: NextFunction) =>
+  uploadPetHealthRecord(req, res, next);
 
 router.use(auth);
 
