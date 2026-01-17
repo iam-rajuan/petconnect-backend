@@ -1,0 +1,147 @@
+{
+  "info": {
+    "name": "PetConnect Admin Pet Types & Breeds",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Admin Pet Types",
+      "item": [
+        {
+          "name": "Create Pet Type",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/admin/pet-types",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "pet-types"]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Dog\"\n}"
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{access_token}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Pet Types",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/admin/pet-types",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "pet-types"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{access_token}}", "type": "string" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Pet Breeds",
+      "item": [
+        {
+          "name": "Create Pet Breed",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/admin/pet-types/{{pet_type_id}}/breeds",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "pet-types", "{{pet_type_id}}", "breeds"]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Labrador\"\n}"
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{access_token}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Breeds By Type",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/admin/pet-types/{{pet_type_id}}/breeds",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "pet-types", "{{pet_type_id}}", "breeds"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{access_token}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Pet Breed",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/admin/pet-breeds/{{pet_breed_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "pet-breeds", "{{pet_breed_id}}"]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Labrador Retriever\"\n}"
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{access_token}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Pet Breed",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/admin/pet-breeds/{{pet_breed_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "pet-breeds", "{{pet_breed_id}}"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{access_token}}", "type": "string" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api/v1" },
+    { "key": "access_token", "value": "" },
+    { "key": "pet_type_id", "value": "" },
+    { "key": "pet_breed_id", "value": "" }
+  ]
+}

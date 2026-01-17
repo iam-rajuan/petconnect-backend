@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import PetType, { IPetType } from "./petType.model";
-import PetBreed from "../pet-breeds/petBreed.model";
 
 const MAX_PET_TYPES = 7;
 
@@ -36,18 +35,15 @@ type PetTypeListItem = {
 export const listPetTypes = async (): Promise<PetTypeListItem[]> => {
   const petTypes = await PetType.find()
     .sort({ name: 1 })
-    .lean<Omit<PetTypeListItem, "petBreedCount">[]>();
-  const breedCounts = await PetBreed.aggregate<{ _id: string; count: number }>([
-    { $group: { _id: "$petType", count: { $sum: 1 } } },
-  ]);
-
-  const countByTypeId = new Map(
-    breedCounts.map((entry) => [entry._id.toString(), entry.count])
-  );
+    .lean<IPetType[]>();
 
   return petTypes.map((petType) => ({
-    ...petType,
-    petBreedCount: countByTypeId.get(petType._id.toString()) ?? 0,
+    _id: petType._id,
+    name: petType.name,
+    slug: petType.slug,
+    createdAt: petType.createdAt,
+    updatedAt: petType.updatedAt,
+    petBreedCount: petType.breeds?.length ?? 0,
   }));
 };
 

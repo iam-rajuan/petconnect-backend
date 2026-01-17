@@ -2022,6 +2022,10 @@ components:
         slug:
           type: string
           example: dog
+        breeds:
+          type: array
+          items:
+            $ref: "#/components/schemas/PetBreed"
         petBreedCount:
           type: integer
           example: 3
@@ -2043,9 +2047,6 @@ components:
         slug:
           type: string
           example: labrador
-        petType:
-          type: string
-          example: 64f1c3e2d2f2b70012a8b0aa
         createdAt:
           type: string
           format: date-time
