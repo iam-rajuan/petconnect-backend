@@ -155,3 +155,28 @@ export const withdrawDeletion = async (req: AuthRequest, res: Response) => {
   }
 };
 
+export const searchUsers = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+    const query =
+      (req as Request & { validatedQuery?: { query?: string } }).validatedQuery || {};
+    const users = await usersService.searchUsers(req.user.id, query.query || "");
+    res.json({
+      success: true,
+      data: users.map((user) => ({
+        id: String(user._id),
+        name: user.name,
+        username: user.username,
+        avatarUrl: user.avatarUrl,
+        role: user.role,
+        lastSeenAt: user.lastSeenAt || null,
+      })),
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to search users";
+    res.status(400).json({ success: false, message });
+  }
+};
+

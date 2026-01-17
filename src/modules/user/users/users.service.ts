@@ -183,3 +183,18 @@ export const withdrawAccountDeletion = async (userId: string): Promise<IUser> =>
   return user;
 };
 
+const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+export const searchUsers = async (userId: string, query: string) => {
+  const escaped = escapeRegex(query.trim());
+  if (!escaped) return [];
+
+  const regex = new RegExp(escaped, "i");
+  return User.find({
+    _id: { $ne: userId },
+    $or: [{ name: { $regex: regex } }, { username: { $regex: regex } }],
+  })
+    .select("name username avatarUrl role lastSeenAt")
+    .lean();
+};
+

@@ -1,4 +1,6 @@
+import mongoose from "mongoose";
 import PetType, { IPetType } from "./petType.model";
+import PetBreed from "../pet-breeds/petBreed.model";
 
 const MAX_PET_TYPES = 7;
 
@@ -22,8 +24,32 @@ export const createPetType = async (name: string): Promise<IPetType> => {
   return PetType.create({ name: normalized, slug });
 };
 
-export const listPetTypes = async (): Promise<IPetType[]> =>
-  PetType.find().sort({ name: 1 });
+type PetTypeListItem = {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  slug: string;
+  createdAt: Date;
+  updatedAt: Date;
+  petBreedCount: number;
+};
+
+export const listPetTypes = async (): Promise<PetTypeListItem[]> => {
+  const petTypes = await PetType.find()
+    .sort({ name: 1 })
+    .lean<Omit<PetTypeListItem, "petBreedCount">[]>();
+  const breedCounts = await PetBreed.aggregate<{ _id: string; count: number }>([
+    { $group: { _id: "$petType", count: { $sum: 1 } } },
+  ]);
+
+  const countByTypeId = new Map(
+    breedCounts.map((entry) => [entry._id.toString(), entry.count])
+  );
+
+  return petTypes.map((petType) => ({
+    ...petType,
+    petBreedCount: countByTypeId.get(petType._id.toString()) ?? 0,
+  }));
+};
 
 export const updatePetType = async (id: string, name: string): Promise<IPetType> => {
   const petType = await PetType.findById(id);

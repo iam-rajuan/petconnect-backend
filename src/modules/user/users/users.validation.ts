@@ -54,8 +54,13 @@ export const userIdParamSchema = z.object({
   id: z.string().trim().min(1, "User id is required"),
 });
 
+export const userSearchQuerySchema = z.object({
+  query: z.string().trim().min(1, "Search query is required"),
+});
+
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 export type UpdateAvatarInput = z.infer<typeof updateAvatarSchema>;
 export type UpdateCoverInput = z.infer<typeof updateCoverSchema>;
 export type UserIdParam = z.infer<typeof userIdParamSchema>;
+export type UserSearchQuery = z.infer<typeof userSearchQuerySchema>;

@@ -7,17 +7,8 @@ servers:
 tags:
   - name: AdminAuth
   - name: AdminProfile
-  - name: AdminPets
   - name: AdminUsers
-  - name: UserBookings
-  - name: UserServices
-  - name: UserPayments
-  - name: UserPets
-  - name: UserProviders
-  - name: UserAppointments
-  - name: UserAdoption
-  - name: UserMessages
-  - name: Webhooks
+  - name: AdminPets
   - name: AdminServiceSettings
   - name: AdminServiceManagement
   - name: AdminAdoption
@@ -26,7 +17,16 @@ tags:
   - name: UserAuth
   - name: UserProfiles
   - name: UserUploads
+  - name: UserPets
+  - name: UserProviders
+  - name: UserServices
+  - name: UserBookings
+  - name: UserPayments
+  - name: UserAppointments
+  - name: UserAdoption
+  - name: UserMessages
   - name: UserCommunity
+  - name: Webhooks
 components:
   securitySchemes:
     AccessToken:
@@ -618,6 +618,29 @@ components:
         profileCompleted:
           type: boolean
           example: true
+    UserSearchResult:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 64f1c3e2d2f2b70012a8b0aa
+        name:
+          type: string
+          example: Jane Doe
+        username:
+          type: string
+          example: jane_doe
+        avatarUrl:
+          type: string
+          format: uri
+          nullable: true
+        role:
+          type: string
+          example: user
+        lastSeenAt:
+          type: string
+          format: date-time
+          nullable: true
         deletionRequestedAt:
           type: string
           format: date-time
@@ -1999,6 +2022,9 @@ components:
         slug:
           type: string
           example: dog
+        petBreedCount:
+          type: integer
+          example: 3
         createdAt:
           type: string
           format: date-time
@@ -5653,6 +5679,38 @@ paths:
                     $ref: "#/components/schemas/User"
         "400":
           description: Update failed
+        "401":
+          description: Unauthorized
+  /users/search:
+    get:
+      tags: [UserProfiles]
+      summary: Search users by name or username
+      security:
+        - AccessToken: []
+      parameters:
+        - in: query
+          name: query
+          required: true
+          schema:
+            type: string
+            example: jane
+          description: Search term for name or username
+      responses:
+        "200":
+          description: User search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/UserSearchResult"
+        "400":
+          description: Validation failed
         "401":
           description: Unauthorized
   /users/me/password:
