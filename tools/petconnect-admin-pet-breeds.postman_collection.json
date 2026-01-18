@@ -99,9 +99,9 @@
           "request": {
             "method": "PATCH",
             "url": {
-              "raw": "{{baseUrl}}/admin/pet-breeds/{{pet_breed_id}}",
+              "raw": "{{baseUrl}}/admin/pet-breeds/{{pet_breed_name}}",
               "host": ["{{baseUrl}}"],
-              "path": ["admin", "pet-breeds", "{{pet_breed_id}}"]
+              "path": ["admin", "pet-breeds", "{{pet_breed_name}}"]
             },
             "header": [
               { "key": "Content-Type", "value": "application/json" }
@@ -123,9 +123,9 @@
           "request": {
             "method": "DELETE",
             "url": {
-              "raw": "{{baseUrl}}/admin/pet-breeds/{{pet_breed_id}}",
+              "raw": "{{baseUrl}}/admin/pet-breeds/{{pet_breed_name}}",
               "host": ["{{baseUrl}}"],
-              "path": ["admin", "pet-breeds", "{{pet_breed_id}}"]
+              "path": ["admin", "pet-breeds", "{{pet_breed_name}}"]
             },
             "auth": {
               "type": "bearer",
@@ -142,6 +142,6 @@
     { "key": "baseUrl", "value": "http://localhost:3000/api/v1" },
     { "key": "access_token", "value": "" },
     { "key": "pet_type_id", "value": "" },
-    { "key": "pet_breed_id", "value": "" }
+    { "key": "pet_breed_name", "value": "Labrador" }
   ]
 }

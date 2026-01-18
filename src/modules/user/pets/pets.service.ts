@@ -153,6 +153,51 @@ export const addHealthRecord = async (
   return pet;
 };
 
+type HealthRecordUpdate = Omit<
+  Partial<IHealthRecord>,
+  "recordDetails" | "veterinarian" | "vitalSigns" | "observation"
+> & {
+  recordDetails?: Partial<IHealthRecord["recordDetails"]>;
+  veterinarian?: Partial<IHealthRecord["veterinarian"]>;
+  vitalSigns?: Partial<IHealthRecord["vitalSigns"]>;
+  observation?: Partial<IHealthRecord["observation"]>;
+};
+
+export const updateHealthRecord = async (
+  ownerId: string,
+  petId: string,
+  recordId: string,
+  payload: HealthRecordUpdate
+): Promise<IHealthRecord> => {
+  const pet = await ensureOwnedPet(ownerId, petId);
+  const record = (pet.healthRecords || []).find(
+    (entry: any) => entry._id?.toString() === recordId
+  );
+  if (!record) {
+    throw new Error("Health record not found");
+  }
+
+  if (payload.type !== undefined) record.type = payload.type;
+  if (payload.recordDetails !== undefined) {
+    record.recordDetails = { ...record.recordDetails, ...payload.recordDetails };
+  }
+  if (payload.veterinarian !== undefined) {
+    record.veterinarian = { ...record.veterinarian, ...payload.veterinarian };
+  }
+  if (payload.vitalSigns !== undefined) {
+    record.vitalSigns = { ...record.vitalSigns, ...payload.vitalSigns };
+  }
+  if (payload.observation !== undefined) {
+    record.observation = { ...record.observation, ...payload.observation };
+  }
+  if (payload.attachments !== undefined) {
+    record.attachments = payload.attachments;
+  }
+
+  await pet.save();
+  return record;
+};
+
 export const listHealthRecords = async (
   ownerId: string,
   petId: string,

@@ -1263,6 +1263,170 @@
 					"response": []
 				},
 				{
+					"name": "Update Health Record",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "recordType",
+									"value": "Vaccination",
+									"type": "text"
+								},
+								{
+									"key": "recordName",
+									"value": "Rabies Shot - Updated",
+									"type": "text"
+								},
+								{
+									"key": "batchNumber",
+									"value": "RB-2025-01",
+									"type": "text"
+								},
+								{
+									"key": "otherInfo",
+									"value": "Updated dose info",
+									"type": "text"
+								},
+								{
+									"key": "cost",
+									"value": "30.00",
+									"type": "text"
+								},
+								{
+									"key": "date",
+									"value": "01/20/2026",
+									"type": "text"
+								},
+								{
+									"key": "nextDueDate",
+									"value": "07/20/2026",
+									"type": "text"
+								},
+								{
+									"key": "reminderEnabled",
+									"value": "true",
+									"type": "text"
+								},
+								{
+									"key": "reminderDuration",
+									"value": "1 week",
+									"type": "text"
+								},
+								{
+									"key": "vetDesignation",
+									"value": "DVM",
+									"type": "text"
+								},
+								{
+									"key": "vetName",
+									"value": "Dr Smith",
+									"type": "text"
+								},
+								{
+									"key": "clinicName",
+									"value": "Carely Vet",
+									"type": "text"
+								},
+								{
+									"key": "licenseNumber",
+									"value": "LIC-123",
+									"type": "text"
+								},
+								{
+									"key": "vetContact",
+									"value": "+1 555 0000",
+									"type": "text"
+								},
+								{
+									"key": "weight",
+									"value": "15",
+									"type": "text"
+								},
+								{
+									"key": "weightStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "temperature",
+									"value": "101",
+									"type": "text"
+								},
+								{
+									"key": "temperatureStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "heartRate",
+									"value": "90",
+									"type": "text"
+								},
+								{
+									"key": "heartRateStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "respiratoryRate",
+									"value": "22",
+									"type": "text"
+								},
+								{
+									"key": "respiratoryRateStatus",
+									"value": "Normal",
+									"type": "text"
+								},
+								{
+									"key": "observations",
+									"value": "[\"Monitor appetite\",\"Follow-up in 2 weeks\"]",
+									"type": "text"
+								},
+								{
+									"key": "clinicalNotes",
+									"value": "Updated notes after follow-up.",
+									"type": "text"
+								},
+								{
+									"key": "deleteAttachments",
+									"value": "[\"{{health_attachment}}\"]",
+									"type": "text"
+								},
+								{
+									"key": "files",
+									"type": "file",
+									"src": "/C:/Users/Rajuan/Downloads/sample-health.pdf"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}pets/{{pet_id}}/health-records/{{health_record_id}}",
+							"host": [
+								"{{base_url}}pets"
+							],
+							"path": [
+								"{{pet_id}}",
+								"health-records",
+								"{{health_record_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Delete Health Record",
 					"request": {
 						"method": "DELETE",

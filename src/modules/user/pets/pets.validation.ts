@@ -350,6 +350,15 @@ export const createHealthRecordSchema = z
     requireFullHealthRecord(value, ctx);
   });
 
+export const updateHealthRecordSchema = z
+  .object({
+    type: healthRecordTypeSchema.optional(),
+    ...baseHealthRecordSchema,
+    ...flatHealthRecordSchema,
+    deleteAttachments: stringArraySchema.optional(),
+  })
+  .passthrough();
+
 export const healthRecordListQuerySchema = z.object({
   type: healthRecordTypeSchema.optional(),
 });
@@ -376,4 +385,5 @@ export type UpdatePetInput = z.infer<typeof updatePetSchema>;
 export type PetIdParam = z.infer<typeof petIdParamSchema>;
 export type PetHealthRecordParam = z.infer<typeof petHealthRecordParamSchema>;
 export type CreateHealthRecordInput = z.infer<typeof createHealthRecordSchema>;
+export type UpdateHealthRecordInput = z.infer<typeof updateHealthRecordSchema>;
 export type HealthRecordListQuery = z.infer<typeof healthRecordListQuerySchema>;

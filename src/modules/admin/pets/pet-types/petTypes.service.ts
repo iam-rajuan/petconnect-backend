@@ -3,9 +3,24 @@ import PetType, { IPetType } from "./petType.model";
 
 const MAX_PET_TYPES = 7;
 
-const normalizeName = (name: string): { name: string; slug: string } => {
+const normalizeName = (name: string): string => {
   const trimmed = name.trim();
-  return { name: trimmed, slug: trimmed.toLowerCase() };
+  return trimmed;
+};
+
+const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const normalizeBreeds = (breeds: string[]): string[] => {
+  const seen = new Set<string>();
+  const cleaned: string[] = [];
+  for (const raw of breeds) {
+    const trimmed = raw.trim();
+    if (!trimmed) continue;
+    const key = trimmed.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    cleaned.push(trimmed);
+  }
+  return cleaned;
 };
 
 export const createPetType = async (name: string): Promise<IPetType> => {
@@ -14,19 +29,20 @@ export const createPetType = async (name: string): Promise<IPetType> => {
     throw new Error(`Pet type limit reached (max ${MAX_PET_TYPES})`);
   }
 
-  const { name: normalized, slug } = normalizeName(name);
-  const existing = await PetType.findOne({ slug });
+  const normalized = normalizeName(name);
+  const existing = await PetType.findOne({
+    name: { $regex: new RegExp(`^${escapeRegex(normalized)}$`, "i") },
+  });
   if (existing) {
     throw new Error("Pet type already exists");
   }
 
-  return PetType.create({ name: normalized, slug });
+  return PetType.create({ name: normalized });
 };
 
 type PetTypeListItem = {
   _id: mongoose.Types.ObjectId;
   name: string;
-  slug: string;
   createdAt: Date;
   updatedAt: Date;
   petBreedCount: number;
@@ -40,7 +56,6 @@ export const listPetTypes = async (): Promise<PetTypeListItem[]> => {
   return petTypes.map((petType) => ({
     _id: petType._id,
     name: petType.name,
-    slug: petType.slug,
     createdAt: petType.createdAt,
     updatedAt: petType.updatedAt,
     petBreedCount: petType.breeds?.length ?? 0,
@@ -53,16 +68,32 @@ export const updatePetType = async (id: string, name: string): Promise<IPetType>
     throw new Error("Pet type not found");
   }
 
-  const { name: normalized, slug } = normalizeName(name);
-  if (slug !== petType.slug) {
-    const existing = await PetType.findOne({ slug, _id: { $ne: id } });
+  const normalized = normalizeName(name);
+  if (normalized.toLowerCase() !== petType.name.toLowerCase()) {
+    const existing = await PetType.findOne({
+      name: { $regex: new RegExp(`^${escapeRegex(normalized)}$`, "i") },
+      _id: { $ne: id },
+    });
     if (existing) {
       throw new Error("Pet type already exists");
     }
   }
 
   petType.name = normalized;
-  petType.slug = slug;
+  await petType.save();
+  return petType;
+};
+
+export const updatePetBreeds = async (
+  id: string,
+  breeds: string[]
+): Promise<IPetType> => {
+  const petType = await PetType.findById(id);
+  if (!petType) {
+    throw new Error("Pet type not found");
+  }
+
+  petType.breeds = normalizeBreeds(breeds);
   await petType.save();
   return petType;
 };

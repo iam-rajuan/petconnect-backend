@@ -339,6 +339,90 @@ components:
           items:
             type: string
             format: binary
+    PetHealthRecordUpdateForm:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [vaccination, checkup, medication, tick_flea, surgery, dental, other]
+        recordType:
+          type: string
+          description: Free-form type, normalized to enum server-side
+        recordDetails:
+          type: string
+          description: JSON string for recordDetails
+        veterinarian:
+          type: string
+          description: JSON string for veterinarian
+        vitalSigns:
+          type: string
+          description: JSON string for vitalSigns
+        observation:
+          type: string
+          description: JSON string for observation
+        recordName:
+          type: string
+        batchNumber:
+          type: string
+        otherInfo:
+          type: string
+        cost:
+          type: string
+        date:
+          type: string
+        nextDueDate:
+          type: string
+        reminderEnabled:
+          type: boolean
+        reminderDuration:
+          type: string
+        vetDesignation:
+          type: string
+        vetName:
+          type: string
+        clinicName:
+          type: string
+        licenseNumber:
+          type: string
+        vetContact:
+          type: string
+        weight:
+          type: string
+        weightStatus:
+          type: string
+          enum: [normal, high, low]
+        temperature:
+          type: string
+        temperatureStatus:
+          type: string
+          enum: [normal, high, low]
+        heartRate:
+          type: string
+        heartRateStatus:
+          type: string
+          enum: [normal, high, low]
+        respiratoryRate:
+          type: string
+        respiratoryRateStatus:
+          type: string
+          enum: [normal, high, low]
+        status:
+          type: string
+          enum: [normal, high, low]
+        observations:
+          type: string
+          description: JSON array string of observation items
+        clinicalNotes:
+          type: string
+        deleteAttachments:
+          type: string
+          description: JSON array string of attachment keys or URLs to remove
+        files:
+          type: array
+          maxItems: 3
+          items:
+            type: string
+            format: binary
     Pet:
       type: object
       properties:
@@ -2019,13 +2103,11 @@ components:
         name:
           type: string
           example: Dog
-        slug:
-          type: string
-          example: dog
         breeds:
           type: array
           items:
-            $ref: "#/components/schemas/PetBreed"
+            type: string
+            example: Labrador
         petBreedCount:
           type: integer
           example: 3
@@ -2038,21 +2120,9 @@ components:
     PetBreed:
       type: object
       properties:
-        id:
-          type: string
-          example: 64f1c3e2d2f2b70012a8b0bb
         name:
           type: string
           example: Labrador
-        slug:
-          type: string
-          example: labrador
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
     CreatePetTypeInput:
       type: object
       required: [name]
@@ -2067,6 +2137,15 @@ components:
         name:
           type: string
           example: Small Pet
+    UpdatePetBreedsInput:
+      type: object
+      required: [breeds]
+      properties:
+        breeds:
+          type: array
+          items:
+            type: string
+          example: [Labrador, Poodle, Bulldog]
     CreatePetBreedInput:
       type: object
       required: [name]
@@ -2911,6 +2990,42 @@ paths:
           description: Validation failed
         "404":
           description: Pet type not found
+  /admin/pet-types/{id}/breeds:
+    patch:
+      tags: [AdminPets]
+      summary: Replace pet breeds for a pet type
+      security:
+        - AccessToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePetBreedsInput"
+      responses:
+        "200":
+          description: Pet breeds updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: "#/components/schemas/PetType"
+        "400":
+          description: Validation failed
+        "404":
+          description: Pet type not found
     get:
       tags: [AdminPets]
       summary: Get pet breeds by type
@@ -2983,6 +3098,7 @@ paths:
           required: true
           schema:
             type: string
+          description: Pet breed name
       responses:
         "200":
           description: Pet breed deleted
@@ -4923,6 +5039,46 @@ paths:
         "404":
           description: Pet not found
   /pets/{id}/health-records/{recordId}:
+    patch:
+      tags: [UserPets]
+      summary: Update pet health record
+      security:
+        - AccessToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: recordId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/PetHealthRecordUpdateForm"
+      responses:
+        "200":
+          description: Health record updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: "#/components/schemas/PetHealthRecord"
+        "400":
+          description: Validation failed
+        "404":
+          description: Pet or record not found
     delete:
       tags: [UserPets]
       summary: Delete pet health record

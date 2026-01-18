@@ -7,6 +7,7 @@ import {
   createPetTypeSchema,
   updatePetTypeSchema,
   petTypeIdParamSchema,
+  updatePetBreedsSchema,
 } from "./pet-types/petTypes.validation";
 import {
   createPetBreedSchema,
@@ -49,6 +50,13 @@ router.patch(
   validateParams(petTypeIdParamSchema),
   validate(updatePetTypeSchema),
   petTypesController.updatePetType
+);
+router.patch(
+  "/pet-types/:id/breeds",
+  adminAuth,
+  validateParams(petTypeIdParamSchema),
+  validate(updatePetBreedsSchema),
+  petTypesController.updatePetBreeds
 );
 router.delete(
   "/pet-types/:id",

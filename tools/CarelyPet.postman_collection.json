@@ -4019,6 +4019,70 @@
                       "response": []
                     },
                     {
+                      "name": "Update Health Record",
+                      "request": {
+                        "auth": {
+                          "type": "bearer",
+                          "bearer": [
+                            {
+                              "key": "token",
+                              "value": "{{access_token}}",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "method": "PATCH",
+                        "header": [],
+                        "body": {
+                          "mode": "formdata",
+                          "formdata": [
+                            {
+                              "key": "recordName",
+                              "value": "Rabies Shot - Updated",
+                              "type": "text"
+                            },
+                            {
+                              "key": "cost",
+                              "value": "30.00",
+                              "type": "text"
+                            },
+                            {
+                              "key": "observations",
+                              "value": "[\"Monitor appetite\",\"Follow-up in 2 weeks\"]",
+                              "type": "text"
+                            },
+                            {
+                              "key": "clinicalNotes",
+                              "value": "Updated notes after follow-up.",
+                              "type": "text"
+                            },
+                            {
+                              "key": "deleteAttachments",
+                              "value": "[\"{{health_attachment}}\"]",
+                              "type": "text"
+                            },
+                            {
+                              "key": "files",
+                              "type": "file",
+                              "src": "/C:/Users/Rajuan/Downloads/sample-health.pdf"
+                            }
+                          ]
+                        },
+                        "url": {
+                          "raw": "{{base_url}}pets/{{pet_id}}/health-records/{{health_record_id}}",
+                          "host": [
+                            "{{base_url}}pets"
+                          ],
+                          "path": [
+                            "{{pet_id}}",
+                            "health-records",
+                            "{{health_record_id}}"
+                          ]
+                        }
+                      },
+                      "response": []
+                    },
+                    {
                       "name": "Delete Health Record",
                       "request": {
                         "method": "DELETE",

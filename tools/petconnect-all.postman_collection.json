@@ -1226,6 +1226,59 @@
           }
         },
         {
+          "name": "Update Health Record",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/pets/{{pet_id}}/health-records/{{record_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pets",
+                "{{pet_id}}",
+                "health-records",
+                "{{record_id}}"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "recordName",
+                  "value": "Updated Record Name",
+                  "type": "text"
+                },
+                {
+                  "key": "cost",
+                  "value": "30.00",
+                  "type": "text"
+                },
+                {
+                  "key": "observations",
+                  "value": "[\"Monitor appetite\"]",
+                  "type": "text"
+                },
+                {
+                  "key": "clinicalNotes",
+                  "value": "Updated notes.",
+                  "type": "text"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
           "name": "Delete Health Record",
           "request": {
             "method": "DELETE",

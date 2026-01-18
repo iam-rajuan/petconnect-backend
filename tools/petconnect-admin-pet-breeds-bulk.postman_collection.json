@@ -1,0 +1,37 @@
+{
+  "info": {
+    "name": "PetConnect Admin Pet Breeds Bulk",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Replace Pet Breeds",
+      "request": {
+        "method": "PATCH",
+        "url": {
+          "raw": "{{baseUrl}}/admin/pet-types/{{pet_type_id}}/breeds",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "pet-types", "{{pet_type_id}}", "breeds"]
+        },
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"breeds\": [\n    \"Labrador\",\n    \"Poodle\",\n    \"Bulldog\"\n  ]\n}"
+        },
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            { "key": "token", "value": "{{access_token}}", "type": "string" }
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api/v1" },
+    { "key": "access_token", "value": "" },
+    { "key": "pet_type_id", "value": "" }
+  ]
+}

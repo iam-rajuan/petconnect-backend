@@ -42,3 +42,18 @@ export const deletePetType = async (req: Request, res: Response) => {
     res.status(status).json({ success: false, message });
   }
 };
+
+export const updatePetBreeds = async (req: Request, res: Response) => {
+  try {
+    const petType = await petTypesService.updatePetBreeds(req.params.id, req.body.breeds);
+    res.json({
+      success: true,
+      message: "Pet breeds updated",
+      data: petType,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to update pet breeds";
+    const status = message === "Pet type not found" ? 404 : 400;
+    res.status(status).json({ success: false, message });
+  }
+};

@@ -14,6 +14,7 @@ import {
   healthRecordListQuerySchema,
   petHealthRecordParamSchema,
   petIdParamSchema,
+  updateHealthRecordSchema,
   updatePetSchema,
 } from "./pets.validation";
 import * as petsController from "./pets.controller";
@@ -148,6 +149,13 @@ router.delete(
   "/:id/health-records/:recordId",
   validateParams(petHealthRecordParamSchema),
   petsController.deleteHealthRecord
+);
+router.patch(
+  "/:id/health-records/:recordId",
+  validateParams(petHealthRecordParamSchema),
+  maybeUploadHealthFiles,
+  validate(updateHealthRecordSchema),
+  petsController.updateHealthRecord
 );
 router.delete("/:id", validateParams(petIdParamSchema), petsController.deletePet);
 
