@@ -1,0 +1,80 @@
+{
+  "info": {
+    "name": "PetConnect Admin Adoption Summary",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Admin Auth",
+      "item": [
+        {
+          "name": "Admin Login",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/admin/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "auth", "login"]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{admin_email}}\",\n  \"password\": \"{{admin_password}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  const token = json && json.data && json.data.tokens && json.data.tokens.accessToken;",
+                  "  if (token) {",
+                  "    pm.collectionVariables.set(\"access_token\", token);",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Adoption Summary",
+      "item": [
+        {
+          "name": "List Adoption Summary",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/admin/adoptions/summary?status={{status}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "adoptions", "summary"],
+              "query": [
+                { "key": "status", "value": "{{status}}" }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{access_token}}", "type": "string" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api/v1" },
+    { "key": "access_token", "value": "" },
+    { "key": "admin_email", "value": "admin@carelypet.com" },
+    { "key": "admin_password", "value": "ChangeMe123!" },
+    { "key": "status", "value": "available" }
+  ]
+}

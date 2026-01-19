@@ -10,6 +10,15 @@ export const toAdminAdoptionListItem = (listing: IAdoptionListing) => ({
   petName: listing.petName,
 });
 
+export const toAdminAdoptionSummaryItem = (listing: IAdoptionListing) => ({
+  id: listing._id,
+  petName: listing.petName,
+  petType: listing.species,
+  petBreed: listing.breed,
+  petAge: listing.age,
+  status: listing.status,
+});
+
 export const toAdminAdoptionRequestListItem = (request: IAdoptionRequest) => ({
   id: request._id,
   customerName:

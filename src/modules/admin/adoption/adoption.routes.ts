@@ -87,6 +87,11 @@ router.delete(
 );
 
 router.get("/", validateQuery(adoptionListQuerySchema), adoptionController.listAdoptions);
+router.get(
+  "/summary",
+  validateQuery(adoptionListQuerySchema),
+  adoptionController.listAdoptionSummary
+);
 router.post("/", uploadAdoptionMedia, adoptionController.createAdoption);
 router.get("/:id", validateParams(adoptionIdParamSchema), adoptionController.getAdoption);
 router.get(

@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import * as adoptionService from "./adoption.service";
-import { toAdminAdoptionListItem, toAdminAdoptionRequestListItem } from "./adoption.mapper";
+import {
+  toAdminAdoptionListItem,
+  toAdminAdoptionRequestListItem,
+  toAdminAdoptionSummaryItem,
+} from "./adoption.mapper";
 import * as uploadsService from "../../user/uploads/uploads.service";
 
 const parseBoolean = (value: unknown): boolean => {
@@ -67,6 +71,17 @@ export const listAdoptions = async (req: Request, res: Response) => {
     const status = req.query.status as string | undefined;
     const listings = await adoptionService.listAdoptionListings(status);
     res.json({ success: true, data: listings.map(toAdminAdoptionListItem) });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to fetch adoption listings";
+    res.status(400).json({ success: false, message });
+  }
+};
+
+export const listAdoptionSummary = async (req: Request, res: Response) => {
+  try {
+    const status = req.query.status as string | undefined;
+    const listings = await adoptionService.listAdoptionListings(status);
+    res.json({ success: true, data: listings.map(toAdminAdoptionSummaryItem) });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed to fetch adoption listings";
     res.status(400).json({ success: false, message });
