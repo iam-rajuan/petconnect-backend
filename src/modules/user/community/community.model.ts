@@ -26,6 +26,7 @@ export interface ICommunityComment extends Document {
   author: mongoose.Types.ObjectId;
   parent?: mongoose.Types.ObjectId | null;
   text: string;
+  likes: mongoose.Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -77,6 +78,7 @@ const communityCommentSchema = new Schema<ICommunityComment>(
     author: { type: Schema.Types.ObjectId, ref: "User", required: true },
     parent: { type: Schema.Types.ObjectId, ref: "CommunityComment", default: null },
     text: { type: String, required: true },
+    likes: { type: [Schema.Types.ObjectId], ref: "User", default: [] },
   },
   { timestamps: true }
 );

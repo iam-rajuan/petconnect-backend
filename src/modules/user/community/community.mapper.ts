@@ -86,6 +86,7 @@ export const toCommunityCommentResponse = (comment: any) => {
     author: mapUser(comment.author),
     parentId: toId(comment.parent),
     text: comment.text || "",
+    likesCount: Array.isArray(comment.likes) ? comment.likes.length : comment.likesCount || 0,
     createdAt: comment.createdAt,
     updatedAt: comment.updatedAt,
     timeAgo: formatTimeAgo(comment.createdAt),

@@ -39,6 +39,12 @@ export const createReplySchema = z
   })
   .strict();
 
+export const updateCommentSchema = z
+  .object({
+    text: z.string().trim().min(1, "Comment text is required"),
+  })
+  .strict();
+
 export const reportPostSchema = z
   .object({
     reason: z.string().trim().min(1, "Report reason is required").optional(),

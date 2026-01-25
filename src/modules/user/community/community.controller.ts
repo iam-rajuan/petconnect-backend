@@ -270,6 +270,57 @@ export const replyToComment = async (req: AuthRequest, res: Response) => {
   }
 };
 
+export const updateComment = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = requireUser(req, res);
+    if (!userId) return;
+    const comment = await communityService.updateComment(userId, req.params.id, req.body.text);
+    const populated = await CommunityComment.findById(comment._id).populate({
+      path: "author",
+      select: "name username avatarUrl",
+    });
+    res.json({ success: true, data: toCommunityCommentResponse(populated), message: "Comment updated" });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to update comment";
+    const status = message === "Comment not found" ? 404 : 400;
+    res.status(status).json({ success: false, message });
+  }
+};
+
+export const deleteComment = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = requireUser(req, res);
+    if (!userId) return;
+    await communityService.deleteComment(userId, req.params.id);
+    res.json({ success: true, message: "Comment deleted" });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to delete comment";
+    const status = message === "Comment not found" ? 404 : 400;
+    res.status(status).json({ success: false, message });
+  }
+};
+
+export const toggleLikeComment = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = requireUser(req, res);
+    if (!userId) return;
+    const { comment, liked } = await communityService.toggleLikeComment(userId, req.params.id);
+    const populated = await CommunityComment.findById(comment._id).populate({
+      path: "author",
+      select: "name username avatarUrl",
+    });
+    res.json({
+      success: true,
+      data: toCommunityCommentResponse(populated),
+      message: liked ? "Comment liked" : "Comment unliked",
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to like comment";
+    const status = message === "Comment not found" ? 404 : 400;
+    res.status(status).json({ success: false, message });
+  }
+};
+
 export const listComments = async (req: AuthRequest, res: Response) => {
   try {
     const items = await communityService.listCommentsWithReplies(req.params.id);

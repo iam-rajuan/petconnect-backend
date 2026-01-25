@@ -12,6 +12,7 @@ import {
   reportPostSchema,
   sharePostSchema,
   updatePostSchema,
+  updateCommentSchema,
   userIdParamSchema,
 } from "./community.validation";
 import * as communityController from "./community.controller";
@@ -62,7 +63,19 @@ const validateQuery =
 
 router.use(auth);
 
-router.post("/posts", uploadPostMedia, validate(createPostSchema), communityController.createPost);
+const maybeUploadPostMedia = (req: Request, res: Response, next: NextFunction) => {
+  if (req.is("multipart/form-data")) {
+    return uploadPostMedia(req, res, next);
+  }
+  return next();
+};
+
+router.post(
+  "/posts",
+  maybeUploadPostMedia,
+  validate(createPostSchema),
+  communityController.createPost
+);
 router.get("/posts", validateQuery(listPostsQuerySchema), communityController.listPosts);
 router.get("/posts/me", validateQuery(listPostsQuerySchema), communityController.listMyPosts);
 router.get("/posts/me/photos", communityController.listMyPhotos);
@@ -76,7 +89,7 @@ router.get("/posts/:id", validateParams(postIdParamSchema), communityController.
 router.patch(
   "/posts/:id",
   validateParams(postIdParamSchema),
-  uploadPostMedia,
+  maybeUploadPostMedia,
   validate(updatePostSchema),
   communityController.updatePost
 );
@@ -98,6 +111,22 @@ router.post(
   validateParams(commentIdParamSchema),
   validate(createReplySchema),
   communityController.replyToComment
+);
+router.patch(
+  "/comments/:id",
+  validateParams(commentIdParamSchema),
+  validate(updateCommentSchema),
+  communityController.updateComment
+);
+router.delete(
+  "/comments/:id",
+  validateParams(commentIdParamSchema),
+  communityController.deleteComment
+);
+router.post(
+  "/comments/:id/like",
+  validateParams(commentIdParamSchema),
+  communityController.toggleLikeComment
 );
 router.post(
   "/posts/:id/share",

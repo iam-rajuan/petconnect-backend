@@ -181,6 +181,48 @@ export const addReply = async (userId: string, commentId: string, text: string) 
   return reply;
 };
 
+export const updateComment = async (userId: string, commentId: string, text: string) => {
+  const comment = await CommunityComment.findOne({ _id: commentId, author: userId });
+  if (!comment) {
+    throw new Error("Comment not found");
+  }
+  comment.text = text.trim();
+  await comment.save();
+  return comment;
+};
+
+export const deleteComment = async (userId: string, commentId: string) => {
+  const comment = await CommunityComment.findOne({ _id: commentId, author: userId });
+  if (!comment) {
+    throw new Error("Comment not found");
+  }
+  const replyIds = await CommunityComment.find({ parent: comment._id }).select("_id").lean();
+  const totalDeleted = 1 + replyIds.length;
+  await Promise.all([
+    CommunityComment.deleteMany({
+      _id: { $in: [comment._id, ...replyIds.map((item: any) => item._id)] },
+    }),
+    CommunityPost.updateOne({ _id: comment.post }, { $inc: { commentsCount: -totalDeleted } }),
+  ]);
+};
+
+export const toggleLikeComment = async (userId: string, commentId: string) => {
+  const comment = await CommunityComment.findById(commentId);
+  if (!comment) {
+    throw new Error("Comment not found");
+  }
+  const existingIndex = comment.likes.findIndex((id) => id.toString() === userId);
+  let liked = false;
+  if (existingIndex >= 0) {
+    comment.likes.splice(existingIndex, 1);
+  } else {
+    comment.likes.push(new mongoose.Types.ObjectId(userId));
+    liked = true;
+  }
+  await comment.save();
+  return { comment, liked };
+};
+
 export const listCommentsWithReplies = async (postId: string) => {
   const comments = await CommunityComment.find({ post: postId })
     .sort({ createdAt: 1 })
