@@ -43,7 +43,7 @@ export const createPost = async (req: AuthRequest, res: Response) => {
 
     const post = await communityService.createPost(userId, req.body.text, media);
     const populated = await communityService.getPostById(post._id.toString());
-    res.status(201).json({ success: true, data: toCommunityPostResponse(populated) });
+    res.status(201).json({ success: true, data: toCommunityPostResponse(populated, userId) });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed to create post";
     res.status(400).json({ success: false, message });
@@ -56,7 +56,7 @@ export const listPosts = async (req: AuthRequest, res: Response) => {
     const result = await communityService.listPosts({ page, limit });
     res.json({
       success: true,
-      data: result.data.map(toCommunityPostResponse),
+      data: result.data.map((item) => toCommunityPostResponse(item, req.user?.id)),
       pagination: result.pagination,
     });
   } catch (err) {
@@ -68,7 +68,7 @@ export const listPosts = async (req: AuthRequest, res: Response) => {
 export const getPost = async (req: AuthRequest, res: Response) => {
   try {
     const post = await communityService.getPostById(req.params.id);
-    res.json({ success: true, data: toCommunityPostResponse(post) });
+    res.json({ success: true, data: toCommunityPostResponse(post, req.user?.id) });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Post not found";
     const status = message === "Post not found" ? 404 : 400;
@@ -84,7 +84,7 @@ export const listMyPosts = async (req: AuthRequest, res: Response) => {
     const result = await communityService.listPosts({ page, limit, authorId: userId });
     res.json({
       success: true,
-      data: result.data.map(toCommunityPostResponse),
+      data: result.data.map((item) => toCommunityPostResponse(item, req.user?.id)),
       pagination: result.pagination,
     });
   } catch (err) {
@@ -117,7 +117,7 @@ export const listUserPosts = async (req: AuthRequest, res: Response) => {
     });
     res.json({
       success: true,
-      data: result.data.map(toCommunityPostResponse),
+      data: result.data.map((item) => toCommunityPostResponse(item, req.user?.id)),
       pagination: result.pagination,
     });
   } catch (err) {
@@ -197,7 +197,11 @@ export const updatePost = async (req: AuthRequest, res: Response) => {
       media: req.body.media,
     });
     const populated = await communityService.getPostById(post._id.toString());
-    res.json({ success: true, data: toCommunityPostResponse(populated), message: "Post updated" });
+    res.json({
+      success: true,
+      data: toCommunityPostResponse(populated, userId),
+      message: "Post updated",
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed to update post";
     const status = message === "Post not found" ? 404 : 400;
@@ -226,7 +230,7 @@ export const toggleLike = async (req: AuthRequest, res: Response) => {
     const populated = await communityService.getPostById(post._id.toString());
     res.json({
       success: true,
-      data: toCommunityPostResponse(populated),
+      data: toCommunityPostResponse(populated, userId),
       message: liked ? "Post liked" : "Post unliked",
     });
   } catch (err) {
@@ -245,7 +249,7 @@ export const addComment = async (req: AuthRequest, res: Response) => {
       path: "author",
       select: "name username avatarUrl",
     });
-    res.status(201).json({ success: true, data: toCommunityCommentResponse(populated) });
+    res.status(201).json({ success: true, data: toCommunityCommentResponse(populated, userId) });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed to add comment";
     const status = message === "Post not found" ? 404 : 400;
@@ -262,7 +266,7 @@ export const replyToComment = async (req: AuthRequest, res: Response) => {
       path: "author",
       select: "name username avatarUrl",
     });
-    res.status(201).json({ success: true, data: toCommunityCommentResponse(populated) });
+    res.status(201).json({ success: true, data: toCommunityCommentResponse(populated, userId) });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed to add reply";
     const status = message === "Comment not found" ? 404 : 400;
@@ -279,7 +283,11 @@ export const updateComment = async (req: AuthRequest, res: Response) => {
       path: "author",
       select: "name username avatarUrl",
     });
-    res.json({ success: true, data: toCommunityCommentResponse(populated), message: "Comment updated" });
+    res.json({
+      success: true,
+      data: toCommunityCommentResponse(populated, userId),
+      message: "Comment updated",
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed to update comment";
     const status = message === "Comment not found" ? 404 : 400;
@@ -311,7 +319,7 @@ export const toggleLikeComment = async (req: AuthRequest, res: Response) => {
     });
     res.json({
       success: true,
-      data: toCommunityCommentResponse(populated),
+      data: toCommunityCommentResponse(populated, userId),
       message: liked ? "Comment liked" : "Comment unliked",
     });
   } catch (err) {
@@ -325,8 +333,8 @@ export const listComments = async (req: AuthRequest, res: Response) => {
   try {
     const items = await communityService.listCommentsWithReplies(req.params.id);
     const data = items.map(({ comment, replies }) => ({
-      comment: toCommunityCommentResponse(comment),
-      replies: replies.map(toCommunityCommentResponse),
+      comment: toCommunityCommentResponse(comment, req.user?.id),
+      replies: replies.map((reply) => toCommunityCommentResponse(reply, req.user?.id)),
     }));
     res.json({ success: true, data });
   } catch (err) {
@@ -341,7 +349,7 @@ export const sharePost = async (req: AuthRequest, res: Response) => {
     if (!userId) return;
     const post = await communityService.createSharedPost(userId, req.params.id, req.body.text);
     const populated = await communityService.getPostById(post._id.toString());
-    res.status(201).json({ success: true, data: toCommunityPostResponse(populated) });
+    res.status(201).json({ success: true, data: toCommunityPostResponse(populated, userId) });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed to share post";
     const status = message === "Post not found" ? 404 : 400;

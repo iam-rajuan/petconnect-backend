@@ -45,10 +45,13 @@ const mapUser = (user: any) => {
   return id ? { id } : null;
 };
 
-export const toCommunityPostResponse = (post: any) => {
+export const toCommunityPostResponse = (post: any, viewerId?: string | null) => {
   if (!post) return null;
   const id = toId(post._id) || String(post.id || "");
   const author = mapUser(post.author);
+  const isLikedByMe = viewerId
+    ? Array.isArray(post.likes) && post.likes.some((like: any) => toId(like) === viewerId)
+    : false;
   const sharedPost = post.sharedPost
     ? {
         id: toId(post.sharedPost._id) || String(post.sharedPost.id || ""),
@@ -70,6 +73,7 @@ export const toCommunityPostResponse = (post: any) => {
     shareText: post.shareText || "",
     sharedPost,
     likesCount: Array.isArray(post.likes) ? post.likes.length : post.likesCount || 0,
+    isLikedByMe,
     commentsCount: post.commentsCount || 0,
     sharesCount: post.sharesCount || 0,
     createdAt: post.createdAt,
@@ -78,8 +82,12 @@ export const toCommunityPostResponse = (post: any) => {
   };
 };
 
-export const toCommunityCommentResponse = (comment: any) => {
+export const toCommunityCommentResponse = (comment: any, viewerId?: string | null) => {
   if (!comment) return null;
+  const isLikedByMe = viewerId
+    ? Array.isArray(comment.likes) &&
+      comment.likes.some((like: any) => toId(like) === viewerId)
+    : false;
   return {
     id: toId(comment._id) || String(comment.id || ""),
     postId: toId(comment.post) || "",
@@ -87,6 +95,7 @@ export const toCommunityCommentResponse = (comment: any) => {
     parentId: toId(comment.parent),
     text: comment.text || "",
     likesCount: Array.isArray(comment.likes) ? comment.likes.length : comment.likesCount || 0,
+    isLikedByMe,
     createdAt: comment.createdAt,
     updatedAt: comment.updatedAt,
     timeAgo: formatTimeAgo(comment.createdAt),
