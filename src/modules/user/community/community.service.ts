@@ -210,11 +210,17 @@ export const listCommentsWithReplies = async (postId: string) => {
 export const listMyPostPhotos = async (userId: string) => {
   const posts = await CommunityPost.find({ author: userId })
     .sort({ createdAt: -1 })
-    .select("media createdAt");
-  const photos = posts.flatMap((post) =>
+    .select("media createdAt")
+    .lean();
+  const photos = posts.flatMap((post: any) =>
     (post.media || [])
-      .filter((item) => item.type === "image")
-      .map((item) => ({ ...item, postId: post._id, createdAt: post.createdAt }))
+      .filter((item: any) => item.type === "image")
+      .map((item: any) => ({
+        url: item.url,
+        type: item.type,
+        postId: post._id,
+        createdAt: post.createdAt,
+      }))
   );
   return photos;
 };
