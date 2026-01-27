@@ -349,6 +349,24 @@ export const createAdoptionOrder = async (payload: {
     currency,
   });
 
+  for (const listing of listings) {
+    const existingRequest = await AdoptionRequest.findOne({
+      listing: listing._id,
+      customer: payload.userId,
+    });
+    if (!existingRequest) {
+      await AdoptionRequest.create({
+        listing: listing._id,
+        customer: payload.userId,
+        status: "pending",
+      });
+    }
+    if (listing.status !== "pending") {
+      listing.status = "pending";
+      await listing.save();
+    }
+  }
+
   try {
     const paymentIntent = await createPaymentIntent({
       amount: Math.round(total * 100),

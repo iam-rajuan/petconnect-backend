@@ -285,6 +285,7 @@ export const checkoutBasket = async (req: AuthRequest, res: Response) => {
         orderId: order._id,
         paymentIntentId: order.paymentIntentId,
         clientSecret,
+        customer: order.customerInfo,
         subtotal: order.subtotal,
         taxPercent: order.taxPercent,
         taxAmount: order.taxAmount,

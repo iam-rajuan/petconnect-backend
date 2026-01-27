@@ -8,8 +8,19 @@ const toIdString = (value?: mongoose.Types.ObjectId | string): string => {
   return value.toString();
 };
 
+const extractId = (value: unknown): string => {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  if (value instanceof mongoose.Types.ObjectId) return value.toString();
+  if (typeof value === "object" && "_id" in value) {
+    const nested = (value as { _id?: unknown })._id;
+    return extractId(nested);
+  }
+  return "";
+};
+
 const isPopulated = <T extends object>(value: unknown): value is T =>
-  !!value && typeof value === "object";
+  !!value && typeof value === "object" && !(value instanceof mongoose.Types.ObjectId);
 
 export const toAdminAdoptionListItem = (listing: IAdoptionListing) => ({
   id: listing._id,
@@ -33,12 +44,8 @@ export const toAdminAdoptionSummaryItem = (listing: IAdoptionListing) => ({
 
 export const toAdminAdoptionRequestListItem = (request: IAdoptionRequest) => ({
   id: request._id,
-  listingId: isPopulated<{ _id?: mongoose.Types.ObjectId | string }>(request.listing)
-    ? toIdString(request.listing._id)
-    : toIdString(request.listing as mongoose.Types.ObjectId | string),
-  customerId: isPopulated<{ _id?: mongoose.Types.ObjectId | string }>(request.customer)
-    ? toIdString(request.customer._id)
-    : toIdString(request.customer as mongoose.Types.ObjectId | string),
+  listingId: extractId(request.listing),
+  customerId: extractId(request.customer),
   customerName:
     isPopulated<{ name?: string }>(request.customer) ? request.customer.name
       : "",

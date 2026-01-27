@@ -2,6 +2,7 @@ import AdoptionListing, { IAdoptionListing } from "../../user/adoption/adoption.
 import AdoptionRequest, {
   IAdoptionRequest,
 } from "../../user/adoption/adoptionRequest.model";
+import AdoptionOrder from "../../user/adoption/adoptionOrder.model";
 
 export const listAdoptionListings = async (
   status?: string
@@ -55,10 +56,44 @@ export const listAdoptionRequests = async (
   if (status && status !== "all") {
     filter.status = status;
   }
-  return AdoptionRequest.find(filter)
+  let requests = await AdoptionRequest.find(filter)
     .sort({ createdAt: -1 })
     .populate("customer", "name")
     .populate("listing", "species breed age status");
+  if (requests.length > 0) {
+    return requests;
+  }
+
+  // Backfill missing requests from pending adoption orders (created at checkout).
+  const orderFilter: Record<string, unknown> = {};
+  if (status && status !== "all") {
+    orderFilter.status = status;
+  }
+  const orders = await AdoptionOrder.find(orderFilter).select("customer items status");
+  for (const order of orders) {
+    const customerId = order.customer;
+    for (const item of order.items || []) {
+      const listingId = (item as { listing?: any }).listing;
+      if (!listingId) continue;
+      const existing = await AdoptionRequest.findOne({
+        listing: listingId,
+        customer: customerId,
+      });
+      if (!existing) {
+        await AdoptionRequest.create({
+          listing: listingId,
+          customer: customerId,
+          status: order.status === "paid" ? "delivered" : "pending",
+        });
+      }
+    }
+  }
+
+  requests = await AdoptionRequest.find(filter)
+    .sort({ createdAt: -1 })
+    .populate("customer", "name")
+    .populate("listing", "species breed age status");
+  return requests;
 };
 
 export const getAdoptionRequest = async (id: string): Promise<IAdoptionRequest> => {
