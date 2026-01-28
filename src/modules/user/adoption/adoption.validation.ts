@@ -25,7 +25,7 @@ export const listingQuerySchema = z.object({
   species: z.string().trim().optional(),
   breed: z.string().trim().optional(),
   location: z.string().trim().optional(),
-  status: z.enum(["available", "pending", "adopted"]).optional(),
+  status: z.enum(["available", "pending", "adopted", "all"]).optional(),
   ageMin: z.coerce.number().min(0).optional(),
   ageMax: z.coerce.number().min(0).optional(),
   page: z.coerce.number().min(1).optional(),

@@ -85,9 +85,9 @@ export const listAdoptionListings = async (
   const query: Record<string, any> = {};
 
   // Status: default to "available" if none specified
-  if (filters.status) {
+  if (filters.status && filters.status !== "all") {
     query.status = filters.status;
-  } else {
+  } else if (!filters.status) {
     query.status = "available";
   }
 

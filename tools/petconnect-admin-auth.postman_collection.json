@@ -1,0 +1,50 @@
+{
+  "info": {
+    "name": "PetConnect Admin Auth",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Admin Login",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{baseUrl}}/admin/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["admin", "auth", "login"]
+        },
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{admin_email}}\",\n  \"password\": \"{{admin_password}}\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "  const json = pm.response.json();",
+              "  const access = json && json.data && json.data.tokens && json.data.tokens.accessToken;",
+              "  const refresh = json && json.data && json.data.tokens && json.data.tokens.refreshToken;",
+              "  if (access) pm.collectionVariables.set('access_token', access);",
+              "  if (refresh) pm.collectionVariables.set('refresh_token', refresh);",
+              "}"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api/v1" },
+    { "key": "admin_email", "value": "admin@carelypet.com" },
+    { "key": "admin_password", "value": "ChangeMe123!" },
+    { "key": "access_token", "value": "" },
+    { "key": "refresh_token", "value": "" }
+  ]
+}

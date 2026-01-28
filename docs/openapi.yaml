@@ -1010,6 +1010,24 @@ components:
             otherInfo:
               type: string
               nullable: true
+            cost:
+              type: string
+              nullable: true
+            date:
+              type: string
+              nullable: true
+            nextDueDate:
+              type: string
+              nullable: true
+            reminder:
+              type: object
+              nullable: true
+              properties:
+                enabled:
+                  type: boolean
+                offset:
+                  type: string
+                  nullable: true
         veterinarian:
           type: object
           properties:
@@ -1037,6 +1055,16 @@ components:
             status:
               type: string
               enum: [normal, high, low]
+        observation:
+          type: object
+          properties:
+            lookupObservations:
+              type: array
+              items:
+                type: string
+            clinicalNotes:
+              type: string
+              nullable: true
         attachments:
           type: array
           items:
@@ -3352,7 +3380,7 @@ paths:
           required: false
           schema:
             type: string
-            enum: [available, pending, adopted]
+            enum: [available, pending, adopted, all]
       responses:
         "200":
           description: Adoption list
@@ -3561,13 +3589,18 @@ paths:
                   enum: [vaccination, checkup, medication, tick_flea, surgery, dental, other]
                 recordDetails:
                   type: string
-                  description: JSON string
+                  description: JSON string (recordName required; other fields optional)
+                  example: >-
+                    {"recordName":"Rabies","batchLotNo":"A1","otherInfo":"Annual","cost":"450","date":"2025-01-15","nextDueDate":"2025-01-25","reminder":{"enabled":true,"offset":"1 week"}}
                 veterinarian:
                   type: string
-                  description: JSON string
+                  description: JSON string (optional)
                 vitalSigns:
                   type: string
-                  description: JSON string
+                  description: JSON string (optional)
+                observation:
+                  type: string
+                  description: JSON string (optional)
                 files:
                   type: array
                   items:
@@ -3584,10 +3617,16 @@ paths:
                   enum: [vaccination, checkup, medication, tick_flea, surgery, dental, other]
                 recordDetails:
                   type: object
+                  description: recordName required; other fields optional
                 veterinarian:
                   type: object
+                  description: optional
                 vitalSigns:
                   type: object
+                  description: optional
+                observation:
+                  type: object
+                  description: optional
       responses:
         "201":
           description: Health record added
