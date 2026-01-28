@@ -6,6 +6,7 @@ import * as settingsController from "./settings.controller";
 import {
   availabilitySchema,
   createServiceSchema,
+  privacySchema,
   serviceIdParamSchema,
   taxSchema,
   termsSchema,
@@ -61,5 +62,7 @@ router.patch(
 );
 router.get("/terms", settingsController.getTerms);
 router.put("/terms", validate(termsSchema), settingsController.updateTerms);
+router.get("/privacy", settingsController.getPrivacy);
+router.put("/privacy", validate(privacySchema), settingsController.updatePrivacy);
 
 export default router;

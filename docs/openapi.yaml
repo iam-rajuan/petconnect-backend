@@ -1499,6 +1499,9 @@ components:
           type: integer
           nullable: true
           example: 3
+        petAgeLabel:
+          type: string
+          example: 3 years
         status:
           type: string
           enum: [pending, completed]
@@ -1551,6 +1554,9 @@ components:
               type: integer
               nullable: true
               example: 3
+            ageLabel:
+              type: string
+              example: 3 years
         orderSummary:
           type: object
           properties:

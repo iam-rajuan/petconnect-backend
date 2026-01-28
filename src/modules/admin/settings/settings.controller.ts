@@ -3,6 +3,7 @@ import * as settingsService from "./settings.service";
 import {
   AvailabilityInput,
   CreateServiceInput,
+  PrivacyInput,
   TermsInput,
   TaxInput,
   UpdateServiceInput,
@@ -158,6 +159,36 @@ export const updateTerms = async (req: Request & { body: TermsInput }, res: Resp
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed to update terms";
+    res.status(400).json({ success: false, message });
+  }
+};
+
+export const getPrivacy = async (_req: Request, res: Response) => {
+  try {
+    const policy = await settingsService.getPrivacy();
+    res.json({
+      success: true,
+      data: {
+        content: policy?.content ?? "",
+        updatedAt: policy?.updatedAt ?? null,
+      },
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to fetch privacy policy";
+    res.status(400).json({ success: false, message });
+  }
+};
+
+export const updatePrivacy = async (req: Request & { body: PrivacyInput }, res: Response) => {
+  try {
+    const policy = await settingsService.updatePrivacy(req.body);
+    res.json({
+      success: true,
+      message: "Privacy policy updated",
+      data: { content: policy.content, updatedAt: policy.updatedAt },
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to update privacy policy";
     res.status(400).json({ success: false, message });
   }
 };

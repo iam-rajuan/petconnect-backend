@@ -9,6 +9,7 @@ import TermsAndConditions, {
 import {
   AvailabilityInput,
   CreateServiceInput,
+  PrivacyInput,
   TermsInput,
   UpdateServiceInput,
   TaxInput,
@@ -159,6 +160,20 @@ export const updateTerms = async (payload: TermsInput): Promise<ITermsAndConditi
   const content = payload.content.trim();
   const updated = await TermsAndConditions.findOneAndUpdate(
     { type: "terms" },
+    { content },
+    { new: true, upsert: true, setDefaultsOnInsert: true }
+  );
+  return updated;
+};
+
+export const getPrivacy = async (): Promise<ITermsAndConditions | null> => {
+  return TermsAndConditions.findOne({ type: "privacy" }).sort({ updatedAt: -1 });
+};
+
+export const updatePrivacy = async (payload: PrivacyInput): Promise<ITermsAndConditions> => {
+  const content = payload.content.trim();
+  const updated = await TermsAndConditions.findOneAndUpdate(
+    { type: "privacy" },
     { content },
     { new: true, upsert: true, setDefaultsOnInsert: true }
   );
