@@ -1,0 +1,167 @@
+{
+  "info": {
+    "_postman_id": "0c8f1cc8-320d-4b3e-a61a-9383c9b87518",
+    "name": "petconnect-admin-dashboard-analytics",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Admin Auth",
+      "item": [
+        {
+          "name": "Admin Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let res = pm.response.json();",
+                  "",
+                  "if (res?.data?.tokens?.accessToken) {",
+                  "    pm.environment.set(\"access_token\", res.data.tokens.accessToken);",
+                  "    console.log(\"Admin access token saved!\");",
+                  "}",
+                  "",
+                  "if (res?.data?.tokens?.refreshToken) {",
+                  "    pm.environment.set(\"refresh_token\", res.data.tokens.refreshToken);",
+                  "    console.log(\"Admin refresh token saved!\");",
+                  "}",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \\\"email\\\": \\\"admin@carelypet.com\\\",\r\n  \\\"password\\\": \\\"admin@123\\\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}admin/auth/login",
+              "host": [
+                "{{base_url}}admin"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Monthly Breakdown",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}admin/dashboard/monthly-breakdown?month=1&year=2026",
+              "host": [
+                "{{base_url}}admin"
+              ],
+              "path": [
+                "dashboard",
+                "monthly-breakdown"
+              ],
+              "query": [
+                {
+                  "key": "month",
+                  "value": "1"
+                },
+                {
+                  "key": "year",
+                  "value": "2026"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "User Metrics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}admin/dashboard/user-metrics?year=2026",
+              "host": [
+                "{{base_url}}admin"
+              ],
+              "path": [
+                "dashboard",
+                "user-metrics"
+              ],
+              "query": [
+                {
+                  "key": "year",
+                  "value": "2026"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Revenue Metric",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}admin/analytics/revenue-metric?year=2026",
+              "host": [
+                "{{base_url}}admin"
+              ],
+              "path": [
+                "analytics",
+                "revenue-metric"
+              ],
+              "query": [
+                {
+                  "key": "year",
+                  "value": "2026"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
