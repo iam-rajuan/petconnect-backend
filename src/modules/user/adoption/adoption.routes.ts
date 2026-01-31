@@ -87,6 +87,7 @@ router.post(
 );
 
 router.get("/me/listings", auth, adoptionController.getMyAdoptionListings);
+router.get("/me/orders", auth, adoptionController.getAdoptionHistory);
 
 router.post(
   "/",

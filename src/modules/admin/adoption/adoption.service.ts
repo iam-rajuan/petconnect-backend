@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import AdoptionListing, { IAdoptionListing } from "../../user/adoption/adoption.model";
 import AdoptionRequest, {
   IAdoptionRequest,
@@ -114,8 +115,44 @@ export const updateAdoptionRequestStatus = async (
   if (!request) {
     throw new Error("Adoption request not found");
   }
+  const resolveId = (value: unknown): string => {
+    if (!value) return "";
+    if (typeof value === "string") return value;
+    if (value instanceof mongoose.Types.ObjectId) return value.toString();
+    if (typeof value === "object" && "_id" in value) {
+      return resolveId((value as { _id?: unknown })._id);
+    }
+    return "";
+  };
+
   request.status = status;
   await request.save();
+
+  if (status === "delivered") {
+    const listingId = resolveId(request.listing);
+    const customerId = resolveId(request.customer);
+    if (listingId) {
+      await AdoptionListing.updateOne({ _id: listingId }, { status: "adopted" });
+    }
+
+    if (customerId && listingId) {
+      const order = await AdoptionOrder.findOne({
+        customer: customerId,
+        "items.listing": listingId,
+      }).sort({ createdAt: -1 });
+
+      console.log(
+        `[adoption-complete] request=${request._id.toString()} customer=${customerId} listing=${listingId} order=${order?._id?.toString() || "none"} status=${order?.status || "n/a"} paymentStatus=${order?.paymentStatus || "n/a"} paidAt=${order?.paidAt?.toISOString?.() || "n/a"}`
+      );
+
+      if (order) {
+        if (order.paymentStatus !== "paid") order.paymentStatus = "paid";
+        if (order.status !== "paid") order.status = "paid";
+        if (!order.paidAt) order.paidAt = new Date();
+        await order.save();
+      }
+    }
+  }
   return request;
 };
 

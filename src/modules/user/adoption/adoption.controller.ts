@@ -301,3 +301,41 @@ export const checkoutBasket = async (req: AuthRequest, res: Response) => {
     res.status(400).json({ success: false, message });
   }
 };
+
+export const getAdoptionHistory = async (req: AuthRequest, res: Response) => {
+  try {
+    const user = requireUser(req, res);
+    if (!user) return;
+
+    const orders = await adoptionService.getUserOrders(user.id);
+    const data = orders.map((order) => ({
+      orderId: order._id,
+      status: order.status,
+      paymentStatus: order.paymentStatus,
+      paidAt: order.paidAt ?? null,
+      createdAt: order.createdAt,
+      currency: order.currency,
+      subtotal: order.subtotal,
+      taxPercent: order.taxPercent,
+      taxAmount: order.taxAmount,
+      processingFee: order.processingFee,
+      shippingFee: order.shippingFee,
+      total: order.total,
+      items: (order.items || []).map((item) => ({
+        listingId: item.listing,
+        petName: item.petName,
+        petType: item.petType,
+        petBreed: item.petBreed || "",
+        petAge: item.petAge ?? null,
+        petGender: item.petGender || "",
+        avatarUrl: item.avatarUrl || "",
+        price: item.price ?? 0,
+      })),
+    }));
+
+    res.json({ success: true, data });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to fetch adoption history";
+    res.status(400).json({ success: false, message });
+  }
+};

@@ -47,7 +47,7 @@ export const getMonthlyBreakdown = async (month: number, year: number) => {
       },
       {
         $addFields: {
-          paidDate: { $ifNull: ["$paidAt", "$createdAt"] },
+          paidDate: { $ifNull: ["$paidAt", "$updatedAt", "$createdAt"] },
         },
       },
       {
@@ -67,7 +67,7 @@ export const getMonthlyBreakdown = async (month: number, year: number) => {
       },
       {
         $addFields: {
-          paidDate: { $ifNull: ["$paidAt", "$createdAt"] },
+          paidDate: { $ifNull: ["$paidAt", "$updatedAt", "$createdAt"] },
         },
       },
       {
@@ -109,7 +109,7 @@ export const getRevenueMetricsByYear = async (year: number) => {
   const [adoptionAgg, serviceAgg] = await Promise.all([
     AdoptionOrder.aggregate([
       { $match: { paymentStatus: "paid" } },
-      { $addFields: { paidDate: { $ifNull: ["$paidAt", "$createdAt"] } } },
+      { $addFields: { paidDate: { $ifNull: ["$paidAt", "$updatedAt", "$createdAt"] } } },
       { $match: { paidDate: { $gte: start, $lt: end } } },
       {
         $group: {
@@ -120,7 +120,7 @@ export const getRevenueMetricsByYear = async (year: number) => {
     ]),
     ServiceBooking.aggregate([
       { $match: { paymentStatus: "paid" } },
-      { $addFields: { paidDate: { $ifNull: ["$paidAt", "$createdAt"] } } },
+      { $addFields: { paidDate: { $ifNull: ["$paidAt", "$updatedAt", "$createdAt"] } } },
       { $match: { paidDate: { $gte: start, $lt: end } } },
       {
         $group: {

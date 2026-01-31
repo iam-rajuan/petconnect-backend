@@ -52,6 +52,17 @@ export const updateServiceStatus = async (
   }
 
   request.status = payload.status;
+  if (payload.status === "completed") {
+    if (request.paymentStatus !== "paid") {
+      request.paymentStatus = "paid";
+    }
+    if (!request.paidAt) {
+      request.paidAt = new Date();
+    }
+    console.log(
+      `[service-complete] booking=${request._id.toString()} paymentStatus=${request.paymentStatus} paidAt=${request.paidAt?.toISOString?.() || "n/a"}`
+    );
+  }
   await request.save();
 
   return request;
