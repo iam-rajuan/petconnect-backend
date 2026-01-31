@@ -9,7 +9,7 @@ import AdoptionOrder, { IAdoptionOrder } from "./adoptionOrder.model";
 import TaxSetting from "../../services/taxSetting.model";
 import { calculateTotals } from "../../services/pricing.service";
 import { env } from "../../../env";
-import { createPaymentIntent } from "../bookings/stripe.service";
+import { createPaymentIntent, retrievePaymentIntent } from "../bookings/stripe.service";
 
 export interface PaginatedAdoptionListings {
   data: IAdoptionListing[];
@@ -403,5 +403,36 @@ export const createAdoptionOrder = async (payload: {
 };
 
 export const getUserOrders = async (userId: string): Promise<IAdoptionOrder[]> => {
-  return AdoptionOrder.find({ customer: userId }).sort({ createdAt: -1 });
+  const orders = await AdoptionOrder.find({ customer: userId }).sort({ createdAt: -1 });
+
+  await Promise.all(
+    orders.map(async (order) => {
+      if (order.paymentStatus === "paid" || !order.paymentIntentId) {
+        return;
+      }
+
+      try {
+        const intent = await retrievePaymentIntent(order.paymentIntentId);
+        if (intent.status === "succeeded") {
+          order.paymentStatus = "paid";
+          order.status = "paid";
+          const latestCharge =
+            typeof intent.latest_charge === "object" && intent.latest_charge
+              ? (intent.latest_charge as { created?: number })
+              : null;
+          const paidAt = latestCharge?.created
+            ? new Date(latestCharge.created * 1000)
+            : new Date();
+          if (!order.paidAt) {
+            order.paidAt = paidAt;
+          }
+          await order.save();
+        }
+      } catch {
+        // Ignore Stripe lookup failures; return current order state.
+      }
+    })
+  );
+
+  return orders;
 };

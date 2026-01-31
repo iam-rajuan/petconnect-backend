@@ -13,6 +13,8 @@ tags:
   - name: AdminServiceManagement
   - name: AdminAdoption
   - name: AdminAdoptionRequests
+  - name: AdminAnalytics
+  - name: AdminDashboard
   - name: AdminReports
   - name: UserAuth
   - name: UserProfiles
@@ -4043,6 +4045,200 @@ paths:
           description: Unauthorized
         "404":
           description: Service request not found
+  /admin/analytics/monthly-breakdown:
+    get:
+      tags: [AdminAnalytics]
+      summary: Monthly revenue breakdown
+      security:
+        - AccessToken: []
+      parameters:
+        - name: month
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+        - name: year
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 2000
+            maximum: 2100
+      responses:
+        "200":
+          description: Monthly breakdown
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      month:
+                        type: integer
+                      year:
+                        type: integer
+                      currency:
+                        type: string
+                      adoption:
+                        type: object
+                        properties:
+                          revenue:
+                            type: number
+                          orders:
+                            type: integer
+                      service:
+                        type: object
+                        properties:
+                          revenue:
+                            type: number
+                          bookings:
+                            type: integer
+                      total:
+                        type: number
+        "401":
+          description: Unauthorized
+        "400":
+          description: Validation failed
+  /admin/analytics/revenue-metric:
+    get:
+      tags: [AdminAnalytics]
+      summary: Revenue metrics by year
+      security:
+        - AccessToken: []
+      parameters:
+        - name: year
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 2000
+            maximum: 2100
+      responses:
+        "200":
+          description: Revenue metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      year:
+                        type: integer
+                      currency:
+                        type: string
+                      adoption:
+                        type: array
+                        items:
+                          type: number
+                      service:
+                        type: array
+                        items:
+                          type: number
+                      total:
+                        type: array
+                        items:
+                          type: number
+        "401":
+          description: Unauthorized
+        "400":
+          description: Validation failed
+  /admin/dashboard/monthly-breakdown:
+    get:
+      tags: [AdminDashboard]
+      summary: Dashboard monthly revenue breakdown
+      security:
+        - AccessToken: []
+      parameters:
+        - name: month
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+        - name: year
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 2000
+            maximum: 2100
+      responses:
+        "200":
+          description: Dashboard monthly breakdown
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      month:
+                        type: integer
+                      year:
+                        type: integer
+                      currency:
+                        type: string
+                      adoption:
+                        type: number
+                      service:
+                        type: number
+                      total:
+                        type: number
+        "401":
+          description: Unauthorized
+        "400":
+          description: Validation failed
+  /admin/dashboard/user-metrics:
+    get:
+      tags: [AdminDashboard]
+      summary: Dashboard user metrics by year
+      security:
+        - AccessToken: []
+      parameters:
+        - name: year
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 2000
+            maximum: 2100
+      responses:
+        "200":
+          description: Dashboard user metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      year:
+                        type: integer
+                      users:
+                        type: array
+                        items:
+                          type: integer
+        "401":
+          description: Unauthorized
+        "400":
+          description: Validation failed
   /admin/users/{id}:
     get:
       tags: [AdminUsers]
@@ -6108,6 +6304,82 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/AdoptionListing"
+        "401":
+          description: Unauthorized
+  /adoptions/me/orders:
+    get:
+      tags: [UserAdoption]
+      summary: Get my adoption history
+      security:
+        - AccessToken: []
+      responses:
+        "200":
+          description: Adoption order history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        orderId:
+                          type: string
+                        status:
+                          type: string
+                          enum: [pending, paid, failed]
+                        paymentStatus:
+                          type: string
+                          enum: [unpaid, paid]
+                        paidAt:
+                          type: string
+                          format: date-time
+                          nullable: true
+                        createdAt:
+                          type: string
+                          format: date-time
+                        currency:
+                          type: string
+                        subtotal:
+                          type: number
+                        taxPercent:
+                          type: number
+                        taxAmount:
+                          type: number
+                        processingFee:
+                          type: number
+                        shippingFee:
+                          type: number
+                        total:
+                          type: number
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              listingId:
+                                type: string
+                              petName:
+                                type: string
+                              petType:
+                                type: string
+                              petBreed:
+                                type: string
+                              petAge:
+                                type: integer
+                                nullable: true
+                              petGender:
+                                type: string
+                              avatarUrl:
+                                type: string
+                                format: uri
+                                nullable: true
+                              price:
+                                type: number
         "401":
           description: Unauthorized
   /adoptions/basket:
