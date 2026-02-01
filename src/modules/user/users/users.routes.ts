@@ -10,6 +10,7 @@ import {
   userIdParamSchema,
   userSearchQuerySchema,
   petPalsQuerySchema,
+  petPalProfileQuerySchema,
 } from "./users.validation";
 import * as usersController from "./users.controller";
 
@@ -62,8 +63,15 @@ router.use(auth);
 
 router.get("/me", usersController.getMe);
 router.get("/pet-pals", validateQuery(petPalsQuerySchema), usersController.listPetPals);
+router.get(
+  "/:id/pet-pal-profile",
+  validateParams(userIdParamSchema),
+  validateQuery(petPalProfileQuerySchema),
+  usersController.getPetPalProfile
+);
 router.get("/search", validateQuery(userSearchQuerySchema), usersController.searchUsers);
 router.get("/:id", validateParams(userIdParamSchema), usersController.getUserById);
+router.get("/:id/pets", validateParams(userIdParamSchema), usersController.listUserPets);
 router.patch("/me", validate(updateProfileSchema), usersController.updateMe);
 router.patch("/me/password", validate(changePasswordSchema), usersController.changePassword);
 router.patch("/me/avatar", validate(updateAvatarSchema), usersController.updateAvatar);

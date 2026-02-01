@@ -1,5 +1,7 @@
 import bcrypt from "bcrypt";
+import mongoose from "mongoose";
 import User, { IUser } from "./user.model";
+import Pet from "../pets/pets.model";
 import RefreshToken from "../auth/refreshToken.model";
 import {
   UpdateProfileInput,
@@ -184,6 +186,12 @@ export const withdrawAccountDeletion = async (userId: string): Promise<IUser> =>
 };
 
 const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const sanitizePagination = (page?: number, limit?: number) => {
+  const safePage = !page || Number.isNaN(page) || page < 1 ? 1 : Math.floor(page);
+  const safeLimit =
+    !limit || Number.isNaN(limit) || limit < 1 || limit > 30 ? 30 : Math.floor(limit);
+  return { page: safePage, limit: safeLimit };
+};
 
 export const searchUsers = async (userId: string, query: string) => {
   const escaped = escapeRegex(query.trim());
@@ -198,17 +206,75 @@ export const searchUsers = async (userId: string, query: string) => {
     .lean();
 };
 
-export const listPetPals = async (userId: string, limit: number) => {
-  const safeLimit = Number.isNaN(limit) || limit < 1 ? 15 : Math.min(limit, 20);
-  return User.find({
-    _id: { $ne: userId },
+export const getPublicUserById = async (userId: string): Promise<IUser> => {
+  const user = await User.findOne({
+    _id: userId,
     role: "user",
     status: "active",
     isSuspended: { $ne: true },
-  })
-    .sort({ createdAt: -1 })
-    .limit(safeLimit)
-    .select("name username avatarUrl bio lastSeenAt")
-    .lean();
+  }).populate("pets");
+  if (!user) {
+    throw new Error("User not found");
+  }
+  return user;
+};
+
+export const listPetPalsPaginated = async (
+  userId: string,
+  page?: number,
+  limit?: number
+) => {
+  const { page: safePage, limit: safeLimit } = sanitizePagination(page, limit);
+  const match = {
+    _id: { $ne: new mongoose.Types.ObjectId(userId) },
+    role: "user",
+    status: "active",
+    isSuspended: { $ne: true },
+  };
+
+  const total = await User.countDocuments(match);
+  if (total === 0) {
+    return {
+      data: [],
+      pagination: {
+        total,
+        page: safePage,
+        limit: safeLimit,
+        totalPages: 1,
+      },
+    };
+  }
+
+  const sampleSize = Math.min(total, safePage * safeLimit);
+  const data = await User.aggregate([
+    { $match: match },
+    { $sample: { size: sampleSize } },
+    { $skip: (safePage - 1) * safeLimit },
+    { $limit: safeLimit },
+    {
+      $project: {
+        name: 1,
+        username: 1,
+        avatarUrl: 1,
+        bio: 1,
+        lastSeenAt: 1,
+      },
+    },
+  ]);
+
+  return {
+    data,
+    pagination: {
+      total,
+      page: safePage,
+      limit: safeLimit,
+      totalPages: total === 0 ? 1 : Math.ceil(total / safeLimit),
+    },
+  };
+};
+
+export const listUserPets = async (userId: string) => {
+  await getPublicUserById(userId);
+  return Pet.find({ owner: userId }).sort({ createdAt: -1 });
 };
 

@@ -59,7 +59,13 @@ export const userSearchQuerySchema = z.object({
 });
 
 export const petPalsQuerySchema = z.object({
-  limit: z.coerce.number().int().min(1).max(20).optional(),
+  page: z.coerce.number().int().min(1).optional(),
+  limit: z.coerce.number().int().min(1).max(30).optional(),
+});
+
+export const petPalProfileQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).optional(),
+  limit: z.coerce.number().int().min(1).max(100).optional(),
 });
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
@@ -69,3 +75,4 @@ export type UpdateCoverInput = z.infer<typeof updateCoverSchema>;
 export type UserIdParam = z.infer<typeof userIdParamSchema>;
 export type UserSearchQuery = z.infer<typeof userSearchQuerySchema>;
 export type PetPalsQuery = z.infer<typeof petPalsQuerySchema>;
+export type PetPalProfileQuery = z.infer<typeof petPalProfileQuerySchema>;

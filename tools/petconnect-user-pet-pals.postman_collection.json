@@ -52,10 +52,11 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/users/pet-pals?limit={{limit}}",
+              "raw": "{{baseUrl}}/users/pet-pals?page={{page}}&limit={{limit}}",
               "host": ["{{baseUrl}}"],
               "path": ["users", "pet-pals"],
               "query": [
+                { "key": "page", "value": "{{page}}" },
                 { "key": "limit", "value": "{{limit}}" }
               ]
             },
@@ -83,6 +84,44 @@
               ]
             }
           }
+        },
+        {
+          "name": "Get Pet Pal Profile + Posts",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/users/{{pet_pal_id}}/pet-pal-profile?page={{posts_page}}&limit={{posts_limit}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{pet_pal_id}}", "pet-pal-profile"],
+              "query": [
+                { "key": "page", "value": "{{posts_page}}" },
+                { "key": "limit", "value": "{{posts_limit}}" }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{access_token}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Pet Pal Pets",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/users/{{pet_pal_id}}/pets",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{pet_pal_id}}", "pets"]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{access_token}}", "type": "string" }
+              ]
+            }
+          }
         }
       ]
     },
@@ -101,6 +140,23 @@
                 { "key": "page", "value": "1" },
                 { "key": "limit", "value": "10" }
               ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{access_token}}", "type": "string" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Pet Pal Photo URLs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/community/posts/user/{{pet_pal_id}}/photos",
+              "host": ["{{baseUrl}}"],
+              "path": ["community", "posts", "user", "{{pet_pal_id}}", "photos"]
             },
             "auth": {
               "type": "bearer",
@@ -138,6 +194,9 @@
     { "key": "user_email", "value": "" },
     { "key": "user_password", "value": "" },
     { "key": "pet_pal_id", "value": "" },
-    { "key": "limit", "value": "15" }
+    { "key": "page", "value": "1" },
+    { "key": "limit", "value": "30" },
+    { "key": "posts_page", "value": "1" },
+    { "key": "posts_limit", "value": "10" }
   ]
 }

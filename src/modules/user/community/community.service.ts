@@ -267,6 +267,24 @@ export const listMyPostPhotos = async (userId: string) => {
   return photos;
 };
 
+export const listUserPostPhotos = async (userId: string) => {
+  const posts = await CommunityPost.find({ author: userId })
+    .sort({ createdAt: -1 })
+    .select("media createdAt")
+    .lean();
+  const photos = posts.flatMap((post: any) =>
+    (post.media || [])
+      .filter((item: any) => item.type === "image")
+      .map((item: any) => ({
+        url: item.url,
+        type: item.type,
+        postId: post._id,
+        createdAt: post.createdAt,
+      }))
+  );
+  return photos;
+};
+
 export const reportPost = async (userId: string, postId: string, reason?: string) => {
   const post = await CommunityPost.findById(postId);
   if (!post) {

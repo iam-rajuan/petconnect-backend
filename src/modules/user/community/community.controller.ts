@@ -105,6 +105,21 @@ export const listMyPhotos = async (req: AuthRequest, res: Response) => {
   }
 };
 
+export const listUserPhotos = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = requireUser(req, res);
+    if (!userId) return;
+    const photos = await communityService.listUserPostPhotos(req.params.id);
+    res.json({
+      success: true,
+      data: photos.map((photo) => photo.url),
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to fetch photos";
+    res.status(400).json({ success: false, message });
+  }
+};
+
 export const listUserPosts = async (req: AuthRequest, res: Response) => {
   try {
     const userId = requireUser(req, res);

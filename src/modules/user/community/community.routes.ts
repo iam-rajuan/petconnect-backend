@@ -85,6 +85,11 @@ router.get(
   validateQuery(listPostsQuerySchema),
   communityController.listUserPosts
 );
+router.get(
+  "/posts/user/:id/photos",
+  validateParams(userIdParamSchema),
+  communityController.listUserPhotos
+);
 router.get("/posts/:id", validateParams(postIdParamSchema), communityController.getPost);
 router.patch(
   "/posts/:id",
