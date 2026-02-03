@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { AuthRequest } from "../../../middlewares/auth.middleware";
 import * as adoptionService from "./adoption.service";
+import AdoptionRequest from "./adoptionRequest.model";
 import { BasketItemInput, CheckoutInput, ListingQueryInput } from "./adoption.validation";
 
 const requireUser = (req: AuthRequest, res: Response): { id: string; role: string } | null => {
@@ -308,9 +309,42 @@ export const getAdoptionHistory = async (req: AuthRequest, res: Response) => {
     if (!user) return;
 
     const orders = await adoptionService.getUserOrders(user.id);
+    const listingIds = Array.from(
+      new Set(
+        orders.flatMap((order) =>
+          (order.items || []).map((item) =>
+            typeof item.listing === "string" ? item.listing : item.listing.toString()
+          )
+        )
+      )
+    );
+    const requestStatuses =
+      listingIds.length > 0
+        ? await AdoptionRequest.find({
+            customer: user.id,
+            listing: { $in: listingIds },
+          })
+            .select("listing status")
+            .lean()
+        : [];
+    const statusByListing = new Map(
+      requestStatuses.map((request) => [request.listing.toString(), request.status])
+    );
+
     const data = orders.map((order) => ({
       orderId: order._id,
       status: order.status,
+      deliveryStatus:
+        order.paymentStatus !== "paid"
+          ? "not_delivered"
+          : (order.items || []).every(
+              (item) =>
+                statusByListing.get(
+                  typeof item.listing === "string" ? item.listing : item.listing.toString()
+                ) === "delivered"
+            )
+          ? "delivered"
+          : "processing",
       paymentStatus: order.paymentStatus,
       paidAt: order.paidAt ?? null,
       createdAt: order.createdAt,
